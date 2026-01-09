@@ -46,9 +46,9 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         isis.append(float(isi))
 
     spike_stats = {
-        "actual rate (spikes/s)": actual_rate, 
-        "coefficient of variation": cv,
-        "ISI distribution": isis
+        "actual_rate": actual_rate, 
+        "cv": cv,
+        "isi_dist": isis
     }
 
     # calculate burst statistics 
@@ -67,7 +67,10 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         for b in burst:
             index_to_remove = np.where(spike_train_no_bursts == b)
             spike_train_no_bursts = np.delete(spike_train_no_bursts, index_to_remove)
-    avg_burst_isi = float(np.mean(burst_isis))
+    if np.any(np.isfinite(burst_isis)):
+        avg_burst_isi = float(np.nanmean(burst_isis))
+    else:
+        avg_burst_isi = 0.0
 
     if len(spike_train) > 0:
         spikes_in_burst = burst_count / len(spike_train)
@@ -83,14 +86,14 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
     burst_firing_rate_increase = burst_firing_rate - non_burst_firing_rate
 
     burst_properties = {
-        "number of spikes": num_spikes,
-        "burst firing rate (spikes/sec)": burst_firing_rate, 
-        "average ISI, within bursts": avg_burst_isi,
-        "burst rate (bursts/sec)": burst_rate, 
-        "% of spikes in a burst": spikes_in_burst,
-        "% time spent bursting": time_in_burst,
-        "firing rate of non-bursting (spikes/sec)": non_burst_firing_rate,
-        "burst firing rate increase": burst_firing_rate_increase,
+        "num_spikes": num_spikes,
+        "burst_firing_rate": burst_firing_rate, 
+        "avg_ISI_within_bursts": avg_burst_isi,
+        "burst_rate": burst_rate, 
+        "%_spikes_in_burst": spikes_in_burst,
+        "%_time_spent_bursting": time_in_burst,
+        "firing_rate_non_bursting": non_burst_firing_rate,
+        "burst_firing_rate_inc": burst_firing_rate_increase,
     }
     print(spike_stats)
     print(burst_properties)
