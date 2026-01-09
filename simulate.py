@@ -271,3 +271,5 @@ ax2 = sns.heatmap(df12_pivoted, ax=ax2, cmap = 'viridis', cbar_kws={'label': 'co
 plt.xlabel("probability of entering burst")
 plt.ylabel("probability of exiting burst")
 plt.show()
+
+print("hi")
