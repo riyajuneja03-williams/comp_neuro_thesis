@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import synspiketrain
 np.random.seed(0)
+import math 
 
 def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, prob_exit, tau_ref, tau_burst):
     """
@@ -39,6 +40,8 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
     # calculate rate, CV, ISI
     diff = np.diff(spike_train)
     cv = float(np.std(diff) / np.mean(diff))
+    if math.isnan(cv):
+        cv = 0
     actual_rate = len(spike_train) / synspiketrain.T
     isis = []
     for i in range(len(spike_train) - 1):
