@@ -39,14 +39,25 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
 
     # calculate rate, CV, ISI
     diff = np.diff(spike_train)
-    cv = float(np.std(diff) / np.mean(diff))
-    if math.isnan(cv):
-        cv = 0
-    actual_rate = len(spike_train) / synspiketrain.T
     isis = []
-    for i in range(len(spike_train) - 1):
-        isi = spike_train[i+1] - spike_train[i]
-        isis.append(float(isi))
+
+    if diff.size == 0:
+        cv = 0.0
+
+    else:
+        mean_isi = float(np.mean(diff))
+        if mean_isi <= 0:
+            cv = 0.0
+        else: 
+            cv = float(np.std(diff) / mean_isi)
+            if not np.isfinite(cv):
+                cv = 0.0
+        
+        for i in range(len(spike_train) - 1):
+            isi = spike_train[i+1] - spike_train[i]
+            isis.append(float(isi))
+    
+    actual_rate = len(spike_train) / T if T > 0 else 0.0
 
     spike_stats = {
         "actual_rate": actual_rate, 
@@ -56,7 +67,7 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
 
     # calculate burst statistics 
     num_spikes = len(spike_train)
-    burst_rate = len(bursts) / synspiketrain.T
+    burst_rate = len(bursts) / T if T > 0 else 0.0
     burst_count = 0
     burst_time = 0
     spike_train_no_bursts = spike_train
@@ -70,7 +81,7 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         for b in burst:
             index_to_remove = np.where(spike_train_no_bursts == b)
             spike_train_no_bursts = np.delete(spike_train_no_bursts, index_to_remove)
-    if np.any(np.isfinite(burst_isis)):
+    if len(burst_isis) > 0:
         avg_burst_isi = float(np.nanmean(burst_isis))
     else:
         avg_burst_isi = 0.0
@@ -83,9 +94,9 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         burst_firing_rate = burst_count / burst_time
     else:
         burst_firing_rate = 0
-    time_in_burst = burst_time / synspiketrain.T
-    time_not_in_burst = synspiketrain.T - burst_time
-    non_burst_firing_rate = len(spike_train_no_bursts) / time_not_in_burst
+    time_in_burst = burst_time / T if T > 0 else 0.0
+    time_not_in_burst = T - burst_time
+    non_burst_firing_rate = len(spike_train_no_bursts) / time_not_in_burst if time_not_in_burst > 0 else 0.0
     burst_firing_rate_increase = burst_firing_rate - non_burst_firing_rate
 
     burst_properties = {
@@ -98,9 +109,5 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         "firing_rate_non_bursting": non_burst_firing_rate,
         "burst_firing_rate_inc": burst_firing_rate_increase,
     }
-    print(spike_stats)
-    print(burst_properties)
     
     return spike_stats, burst_properties
-
-calculate_statistics(synspiketrain.trains, synspiketrain.bursts, synspiketrain.rate, synspiketrain.T, synspiketrain.burst_rate, synspiketrain.prob_burst, synspiketrain.prob_exit, synspiketrain.tau_ref, synspiketrain.tau_burst)

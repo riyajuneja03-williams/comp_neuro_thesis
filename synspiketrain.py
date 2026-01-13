@@ -112,35 +112,3 @@ def poisson_burst(
                 if burst is not None:
                     burst.append(t)
     return np.array(spikes), all_bursts
-
-# set desired time and time step
-T = 1
-dt = 1e-3
-
-# refractory parameters
-tau_ref = 0.005
-tau_burst = 0.01
-
-# set rates and probabilities
-rate = 10
-burst_rate = 10 * rate
-prob_burst = 0.5
-prob_exit = 0.5
-
-# using list comprehension, generate spike trains
-trains, bursts = poisson_burst(
-        rate,  # rate
-        burst_rate,  # burst rate
-        T,  # cut off time
-        tau_ref=tau_ref,  # spike refractory period
-        tau_burst=tau_burst,  # burst refractory period
-        prob_burst=prob_burst,  # probability of entering a burst
-        prob_end=prob_exit,  # probability of exiting a burst
-    )
-
-# plot generated spike trains
-fig, ax = plt.subplots(1, 1, figsize=(10, 4))
-ax.eventplot(trains, color="k")
-ax.set_xlabel("Time")
-ax.set_ylabel("Train Number")
-plt.show()

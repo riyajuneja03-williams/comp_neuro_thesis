@@ -47,7 +47,8 @@ def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_thre
     bursts = []
 
     # calculate rate & isi
-    rate = len(spike_train) / synspiketrain.T
+    T = 1
+    rate = len(spike_train) / T
 
     def calc_avg_isi(train):
         """
@@ -81,7 +82,7 @@ def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_thre
                     add_forward = False
             # remove earliest spikes from candidate until surprise no longer increases
             remove_backward = True
-            while remove_backward and len(burst_candidate) < max_spikes:
+            while remove_backward and len(burst_candidate) > min_spikes:
                 new_burst_candidate = burst_candidate[1:]
                 new_surprise = calc_surprise(new_burst_candidate, rate)
                 if new_surprise > candidate_surprise and len(new_burst_candidate) >= min_spikes:
@@ -91,16 +92,9 @@ def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_thre
                     remove_backward = False
             bursts.append([burst_candidate, candidate_surprise])
             # burst candidate has max surprise --> start with next non spike burst, repeat
+            spike_train = np.atleast_1d(spike_train)
             spike_index = np.where(spike_train == burst_candidate[-1])[0][0] + 1
         else:
             spike_index += 1
     # store burst candidates + associated surprise values to compare to threshold
     return [[np.array(burst[0]), float(burst[1])] for burst in bursts if burst[1] >= surprise_threshold]
-
-trains = synspiketrain.trains
-bursts = synspiketrain.bursts
-
-detected_bursts = poisson_surprise(trains)
-print(f"spike train: {trains}")
-print(f"actual bursts: {bursts}")
-print(f"bursts detected by poisson surprise: {detected_bursts}")
