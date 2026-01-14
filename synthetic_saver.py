@@ -9,14 +9,14 @@ import stats
 # set desired time and time step
 T = 1
 dt = 1e-3
-N = 2
+N = 100
 
 # refractory parameters
 tau_ref = 0
 tau_burst = 0
 
 # define parameter sets
-rates = np.arange(2, 12, 4)
+rates = np.arange(2, 102, 4)
 rates_list = rates.tolist()
 prob_burst = [0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8]
 prob_exit = [0.2, 0.5, 0.8, 0.2, 0.5, 0.8, 0.2, 0.5, 0.8]

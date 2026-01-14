@@ -7,7 +7,6 @@ import sys
 import synthetic_saver
 import poissonsurprise
 import stats
-import synthetic_df
 
 param = synthetic_saver.params
 T = synthetic_saver.T

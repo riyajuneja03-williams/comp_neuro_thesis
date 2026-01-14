@@ -5,9 +5,6 @@ import pandas as pd
 import seaborn as sns
 import sys
 import synthetic_saver
-import synthetic_df
-import apply_ps
-import all_figs
 
 # load df
 frame_path = os.path.join('thesis', 'data_frame.csv')

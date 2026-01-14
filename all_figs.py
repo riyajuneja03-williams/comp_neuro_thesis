@@ -5,6 +5,45 @@ import pandas as pd
 import seaborn as sns
 import sys
 import synthetic_saver
-import synthetic_df
-import apply_ps
-import save_ps
+import fig_create
+
+frame_path = os.path.join('thesis', 'data_frame.csv')
+df = pd.read_csv(frame_path)
+
+# raster plots
+for i, param in enumerate(synthetic_saver.params):
+    all_trains = []
+    for j in range(0, synthetic_saver.N):
+        trains = []
+        param_name = f'param_{i:04d}'
+        train_name = f'train_{j:03d}'
+        file_name = os.path.join('thesis', param_name, train_name, 'spikes.txt')
+        with open(file_name, 'r') as file:
+            for line in file:
+                trains.append(float(line))
+        all_trains.append(trains)
+        path = os.path.join('thesis', param_name, train_name)
+        fig_create.raster_plot(trains, path)
+    master_path = os.path.join('thesis', param_name)
+    fig_create.raster_plot(all_trains, master_path)
+
+# create heatmaps
+fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
+fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
+
+# create histograms
+fig_create.create_hist('actual_rate', 'rate_hist.png')
+fig_create.create_hist('cv', 'cv_hist.png')
+
+# create scatterplots
+vars = ['rate', 'burst_rate', 'prob_burst', 'prob_end', 
+    'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
+    'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
+]
+
+for var in vars:
+    fig_name = f"{var}_scatterplot.png"
+    fig_create.create_frcv_scatterplot(var, fig_name)
+
+# fr vs cv scatterplots by different params: rate, burst rate, prob burst, prob end
+# fr vs cv scatterplots by burst statistics

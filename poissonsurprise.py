@@ -1,6 +1,7 @@
 import numpy as np
 import math 
 import synspiketrain
+from scipy.stats import poisson
 np.random.seed(1)
 
 def calc_surprise(burst, rate):
@@ -18,15 +19,10 @@ def calc_surprise(burst, rate):
     """
     n = len(burst)
     interval = burst[-1] - burst[0]
-    p = np.exp(-rate * interval) * np.sum(
-            [
-                (rate * interval) ** i / math.factorial(i)
-                for i in range(len(burst), np.max([len(burst) * 4, 80]))
-            ]
-        ) 
+    p = poisson.sf(n-1,rate*interval) 
     return -np.log(p)
 
-def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_threshold = 5):
+def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_threshold = 5, T = 1):
     """
     Identify bursts in spike train using Poisson surprise detection method
 
@@ -47,7 +43,6 @@ def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_thre
     bursts = []
 
     # calculate rate & isi
-    T = 1
     rate = len(spike_train) / T
 
     def calc_avg_isi(train):
@@ -68,7 +63,7 @@ def poisson_surprise(spike_train, min_spikes = 3, max_spikes = 10, surprise_thre
         # identify burst candidate
         burst_candidate = spike_train[spike_index : (spike_index + min_spikes)]
         candidate_avg_isi = calc_avg_isi(burst_candidate)
-        if candidate_avg_isi <= 2 * train_avg_isi: # if meets criteria
+        if candidate_avg_isi <= 0.5 * train_avg_isi: # if meets criteria
             candidate_surprise = calc_surprise(burst_candidate, rate)
             # add forward spikes to candidate until surprise no longer increases
             add_forward = True
