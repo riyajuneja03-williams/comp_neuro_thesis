@@ -32,6 +32,7 @@ for i, param in enumerate(synthetic_saver.params):
         ps_path = os.path.join('thesis', param_name, train_name, 'poisson_bursts.txt')
         with open(ps_path, "w") as file:
             for burst in ps_bursts:
+                print(burst)
                 np.savetxt(file, burst[None, :], fmt = "%f", newline="\n", delimiter = ",")
                 
         # calculate burst statistics for detected bursts

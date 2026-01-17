@@ -11,29 +11,29 @@ frame_path = os.path.join('thesis', 'data_frame.csv')
 df = pd.read_csv(frame_path)
 
 # raster plots
-for i, param in enumerate(synthetic_saver.params):
-    all_trains = []
-    for j in range(0, synthetic_saver.N):
-        trains = []
-        param_name = f'param_{i:04d}'
-        train_name = f'train_{j:03d}'
-        file_name = os.path.join('thesis', param_name, train_name, 'spikes.txt')
-        with open(file_name, 'r') as file:
-            for line in file:
-                trains.append(float(line))
-        all_trains.append(trains)
-        path = os.path.join('thesis', param_name, train_name)
-        fig_create.raster_plot(trains, path)
-    master_path = os.path.join('thesis', param_name)
-    fig_create.raster_plot(all_trains, master_path)
+# for i, param in enumerate(synthetic_saver.params):
+    # all_trains = []
+    # for j in range(0, synthetic_saver.N):
+        # trains = []
+        # param_name = f'param_{i:04d}'
+        # train_name = f'train_{j:03d}'
+        # file_name = os.path.join('thesis', param_name, train_name, 'spikes.txt')
+        # with open(file_name, 'r') as file:
+            # for line in file:
+                # trains.append(float(line))
+        # all_trains.append(trains)
+        # path = os.path.join('thesis', param_name, train_name)
+        # fig_create.raster_plot(trains, path)
+    # master_path = os.path.join('thesis', param_name)
+    # fig_create.raster_plot(all_trains, master_path)
 
 # create heatmaps
-fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
-fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
+# fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
+# fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
 
 # create histograms
-fig_create.create_hist('actual_rate', 'rate_hist.png')
-fig_create.create_hist('cv', 'cv_hist.png')
+# fig_create.create_hist('actual_rate', 'rate_hist.png')
+# fig_create.create_hist('cv', 'cv_hist.png')
 
 # create scatterplots
 vars = ['rate', 'burst_rate', 'prob_burst', 'prob_end', 

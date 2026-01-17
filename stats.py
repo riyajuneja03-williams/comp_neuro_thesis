@@ -70,7 +70,7 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
     burst_rate = len(bursts) / T if T > 0 else 0.0
     burst_count = 0
     burst_time = 0
-    spike_train_no_bursts = spike_train
+    spike_train_no_bursts = np.atleast_1d(spike_train)
     burst_isis = []
     for burst in bursts:
         burst_count += len(burst)
@@ -79,7 +79,7 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
                 burst_isi = burst[i+1] - burst[i]
                 burst_isis.append(float(burst_isi))
         for b in burst:
-            index_to_remove = np.where(spike_train_no_bursts == b)
+            index_to_remove = np.where(spike_train_no_bursts == b)[0]
             spike_train_no_bursts = np.delete(spike_train_no_bursts, index_to_remove)
     if len(burst_isis) > 0:
         avg_burst_isi = float(np.nanmean(burst_isis))
