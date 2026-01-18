@@ -22,6 +22,7 @@ Steps to run:
     f. save_mi.py: append MaxInterval data to dataframe
    
     g. all_figs.py: create & save all figures
+
    
 5. All data & figures will be saved in the thesis directory
 
