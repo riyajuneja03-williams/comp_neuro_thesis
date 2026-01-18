@@ -1,7 +1,9 @@
 DESCRIPTION:
+
 This repo contains all the code for my computationsl neuroscience thesis in Python. Broadly, we are working on developing and evaluating a pipeline in Python for burst detection in neural spike trains, starting with synthetic data and then applying the methods to rodent data (healthy and Parkinsonian).
 
 HOW TO RUN: 
+
 Steps to run:
 1. Create thesis directory.
 2. Activate virtual environment (see below)
@@ -25,4 +27,5 @@ Steps to run:
 4. All data & figures will be saved in the thesis directory
 
 VIRTUAL ENVIRONMENT
+
 Python version 3.10.7 was used for this repository. Follow the instructions at https://docs.python.org/3/library/venv.html to create the virtual environment on your machine. Then, install all the required dependencies/Python modules for this repository by running $ pip install -r requirements.txt
