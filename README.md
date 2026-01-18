@@ -25,19 +25,20 @@ Steps to run:
    
 5. All data & figures will be saved in the thesis directory
 
+
 Scripts that don't need to be run: 
 
-a. fig_create.py: helper function to create figures (don't need to run)
-
-b. logisi.py: helper function to detect bursts using LogISI method (don't need to run)
-
-c. maxinterval.py: helper function to detect bursts using MaxInterval method (don't need to run)
-
-d. poissonsurprise.py: helper function to detect bursts using poisson surprise method (don't need to run)
-
-e. synspiketrain.py: helper function to generate synthetic spike trains (don't need to run)
-
-f. stats.py: helper function to generate spike & burst statistics for spike train (don't need to run)
+    a. fig_create.py: helper function to create figures (don't need to run)
+    
+    b. logisi.py: helper function to detect bursts using LogISI method (don't need to run)
+    
+    c. maxinterval.py: helper function to detect bursts using MaxInterval method (don't need to run)
+    
+    d. poissonsurprise.py: helper function to detect bursts using poisson surprise method (don't need to run)
+    
+    e. synspiketrain.py: helper function to generate synthetic spike trains (don't need to run)
+    
+    f. stats.py: helper function to generate spike & burst statistics for spike train (don't need to run)
 
 VIRTUAL ENVIRONMENT
 
