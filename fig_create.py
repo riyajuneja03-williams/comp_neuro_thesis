@@ -66,7 +66,7 @@ def create_heatmap(indep1, indep2, dep, fig_name):
     plt.savefig(fig_path)
     plt.close()
 
-def create_hist(var, fig_name):
+def create_hist(var, fig_name, log_bool):
     """
     Create histogram.
 
@@ -76,6 +76,8 @@ def create_hist(var, fig_name):
         variable to plot
     fig_name:
         name to save figure as
+    log_bool:
+        boolean to determine whether take log of variable
 
     Returns
     -------
@@ -84,17 +86,20 @@ def create_hist(var, fig_name):
     """
     frame_path = os.path.join('thesis', 'data_frame.csv')
     df = pd.read_csv(frame_path)
-    var = list(df[str(var)])
     plt.figure(figsize=(10,6))
-    plt.hist(var, bins=20, color='blue', alpha=0.5, label = str(var))
-    plt.xlabel(str(var))
-    plt.ylabel('Count')
-    plt.legend()
+    if log_bool:
+        sns.histplot(df, x=str(var), stat="probability", edgecolor="w", log_scale=True)
+        plt.xlabel(f"log({var})")
+        plt.ylabel('Probability')
+    else:
+        sns.histplot(df, x=str(var), stat="probability", edgecolor="w")
+        plt.xlabel(str(var))
+        plt.ylabel('Probability')
     fig_path = os.path.join('thesis', str(fig_name))
     plt.savefig(fig_path)
     plt.close()
 
-def create_frcv_scatterplot(var, fig_name):
+def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
     """
     Create scatterplot.
 
@@ -111,11 +116,39 @@ def create_frcv_scatterplot(var, fig_name):
 
     """
     frame_path = os.path.join('thesis', 'data_frame.csv')
-    df = pd.read_csv(frame_path)
-    plt.figure(figsize=(10,6))
-    sns.scatterplot(data = df, x = "actual_rate", y = "cv", hue = str(var))
-    plt.xlabel("firing rate")
-    plt.ylabel("coefficient of variation")
-    fig_path = os.path.join('thesis', fig_name)
-    plt.savefig(fig_path)
-    plt.close()
+    if df is None:
+        df = pd.read_csv(frame_path)
+    xlim = (df["actual_rate"].min(), df["actual_rate"].max())
+    ylim = (df["cv"].min(), df["cv"].max())
+
+    created_ax = ax is None
+    if created_ax:
+        fig, ax = plt.subplots(figsize=(10,6))
+    else:
+        fig = ax.figure
+
+    if xlim is None:
+        xlim = (df["actual_rate"].min(), df["actual_rate"].max())
+    if ylim is None:
+        ylim = (df["cv"].min(), df["cv"].max())
+
+    sns.scatterplot(data = df, x = "actual_rate", y = "cv", ax=ax,
+                    hue = str(var) if var is not None else None, 
+                    legend=True if var is not None else False, 
+                    hue_norm=hue_norm)
+    
+    if not created_ax:
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+
+    if created_ax:
+        ax.set_xlabel("firing rate")
+        ax.set_ylabel("coefficient of variation")
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    
+    if created_ax and fig_name is not None:
+        fig_path = os.path.join('thesis', fig_name)
+        plt.savefig(fig_path)
+        plt.close()
