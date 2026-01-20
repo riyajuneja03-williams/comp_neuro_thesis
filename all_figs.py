@@ -28,34 +28,24 @@ df = pd.read_csv(frame_path)
     # fig_create.raster_plot(all_trains, master_path)
 
 # create heatmaps
-# fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
-# fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
+fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
+fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
 
 # create histograms
-# fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
-# fig_create.create_hist('cv', 'cv_hist.png', log_bool=False)
-# fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
+fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
+fig_create.create_hist('cv', 'cv_hist.png', log_bool=False)
+fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
 
 # create indiv scatterplots
-# vars = ['rate', 'prob_burst', 'prob_end', 
-    # 'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
-    # 'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
-    # 'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc'
-# ]
+vars = ['rate', 'prob_burst', 'prob_end', 
+    'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
+    'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
+    'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc'
+]
 
-frame_path = os.path.join('thesis', 'data_frame.csv')
-df = pd.read_csv(frame_path)
-
-# for var in vars:
-    # base = var.replace("ps_", "").replace("mi_", "")
-    # cols = [c for c in df.columns if c.endswith(base)]
-    # if cols:
-        # shared_norm = (df[cols].min().min(), df[cols].max().max())
-    # else:
-        # shared_norm = None
-
-    # fig_name = f"{var}_scatterplot.png"
-    # fig_create.create_frcv_scatterplot(var, fig_name, df=df, hue_norm=shared_norm)
+for var in vars:
+    fig_name = f"{var}_scatterplot.png"
+    fig_create.create_frcv_scatterplot(var, fig_name)
 
 # create 3x3 scatterplot
 prob_vals = [0.2, 0.5, 0.8]

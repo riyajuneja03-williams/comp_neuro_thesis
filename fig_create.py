@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 import os
 import pandas as pd
@@ -107,8 +108,14 @@ def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
     ----------
     var: string
         variable to plot
-    fig_name:
+    fig_name: string
         name to save figure as
+    ax: axis
+        if given, plot on this axis
+    df: pandas dataframe
+        if given, get data from this
+    hue_norm: tuple(vmin, vmax)
+        if given, use to scale hue colors
 
     Returns
     -------
@@ -127,16 +134,12 @@ def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
     else:
         fig = ax.figure
 
-    if xlim is None:
-        xlim = (df["actual_rate"].min(), df["actual_rate"].max())
-    if ylim is None:
-        ylim = (df["cv"].min(), df["cv"].max())
+    sns.scatterplot(
+        data=df, x="actual_rate", y="cv", ax=ax,
+        hue=var if var is not None else None,
+        legend=True if var is not None else None
+    )
 
-    sns.scatterplot(data = df, x = "actual_rate", y = "cv", ax=ax,
-                    hue = str(var) if var is not None else None, 
-                    legend=True if var is not None else False, 
-                    hue_norm=hue_norm)
-    
     if not created_ax:
         ax.set_xlabel("")
         ax.set_ylabel("")
