@@ -100,7 +100,7 @@ def create_hist(var, fig_name, log_bool):
     plt.savefig(fig_path)
     plt.close()
 
-def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
+def create_frcv_scatterplot(var, fig_name, ax=None, df=None):
     """
     Create scatterplot.
 
