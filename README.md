@@ -17,12 +17,16 @@ Steps to run:
     c. apply_ps.py: apply poisson surprise method to spike trains & save to files
    
     d. apply_mi.py: apply MaxInterval method to spike trains & save to files
+
+    e. apply_logisi.py: apply LogISI method to spike trains & save to files
    
-    e. save_ps.py: append poisson surprise data to dataframe
+    f. save_ps.py: append poisson surprise data to dataframe
    
-    f. save_mi.py: append MaxInterval data to dataframe
+    g. save_mi.py: append MaxInterval data to dataframe
+
+    h. save_logisi.py: append LogISI data to dataframe
    
-    g. all_figs.py: create & save all figures
+    i. all_figs.py: create & save all figures
 
    
 5. All data & figures will be saved in the thesis directory
