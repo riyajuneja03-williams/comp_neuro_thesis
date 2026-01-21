@@ -140,48 +140,48 @@ def compute_ISIth(trains):
     logISI = np.log(ISI_ms)
 
     # compute histogram with bins of 0.1 in logISI units
-    # STOPPED
-    edges = make_edges(min(logISI), max(logISI), step=0.1)
-    counts = histcounts(logISI, edges)
+    bins = np.arange(min(logISI), max(logISI) + 0.1, 0.1)
+    counts, edges = np.histogram(logISI, bins=bins)
     g = counts / sum(counts)
-    x = bin_centers(edges)
+    x = (edges[:-1] + edges[1:]) / 2
 
-    # Smooth g as a function of x using LOWESS (local linear regression)
-    g_s = lowess(y=g, x=x, degree=1)
+    # smooth g as a function of x using lowess, default is local linear regression aka degree = 1
+    g_smooth = sm.nonparametric.smoothers_lowess.lowess(y=g, x=x)
 
-    # Find peaks (min distance = 2 bins)
-    peak_idxs = find_local_maxima(g_s, min_distance=2)
-    if peak_idxs is empty:
+    # identify principle peaks (min distance = 2 bins)
+    peak_idxs = find_peaks(g_smooth, min_distance=2)
+    if len(peak_idxs) == 0:
         return None
 
-    # Identify intra-burst peak: ISI < 100 ms, choose largest height
+    # identify intra-burst peak: ISI < 100 ms, choose largest height
     isi_at_x_ms = 10^x
     candidates = [p for p in peak_idxs if isi_at_x_ms[p] < 100]
-    if candidates is empty:
+    if len(candidates) == 0:
         return None
-    p1 = argmax(candidates, key = g_s[p])
+    p1 = np.argmax([g_smooth[p] for p in candidates])
 
-    # Need at least one subsequent peak (p2 > p1) to define a valley
+    # need at least one subsequent peak (p2 > p1) to define a valley
     subsequent = [p for p in peak_idxs if p > p1]
-    if subsequent is empty:
+    if len(subsequent) == 0:
         return None
 
-    # Compute void parameter for each pair (p1, p2), p2 subsequent
-    best_void = -inf
+    # compute void parameter for each pair (p1, p2), p2 subsequent
+    best_void = -np.inf
     best_min_idx = None
     void_thresh = 0.7
 
-    for each p2 in subsequent:
+    for p2 in subsequent:
         left = p1
         right = p2
 
-        m = index_of_min(g_s[left:right+1]) + left
-        gmin = g_s[m]
-        g1 = g_s[p1]
-        g2 = g_s[p2]
+        m = np.argmin(g_smooth[left:right+1]) + left
+        gmin = g_smooth[m]
+        g1 = g_smooth[p1]
+        g2 = g_smooth[p2]
 
-        void = 1 - gmin / sqrt(g1 * g2)
-
+        void = 1 - gmin / np.sqrt(g1 * g2)
+    
+        # select ISIth
         if void >= void_thresh and void > best_void:
             best_void = void
             best_min_idx = m
@@ -191,22 +191,21 @@ def compute_ISIth(trains):
 
     return 10^(x[best_min_idx])   # ISIth in ms
 
-
-function detect_windows_CH(trains, maxISI_ms, minSpikes):
-    # CH-style: runs of consecutive ISIs < maxISI_ms, requiring at least minSpikes spikes
-    ISI_ms = diff(trains) converted to ms
+def detect_windows_CH(trains, maxISI_ms, minSpikes):
+    # CH algorithm: runs of consecutive ISIs < maxISI_ms, requiring at least minSpikes spikes
+    ISI_ms = np.diff(trains) * 1000
     windows = []
 
     i = 0
-    while i < length(ISI_ms):
+    while i < len(ISI_ms):
         if ISI_ms[i] < maxISI_ms:
             run_start = i
-            while i < length(ISI_ms) and ISI_ms[i] < maxISI_ms:
+            while i < len(ISI_ms) and ISI_ms[i] < maxISI_ms:
                 i = i + 1
             run_end = i - 1
 
             s = run_start
-            e = run_end + 1   # map ISI indices to spike indices
+            e = run_end + 1 # map ISI indices to spike indices
 
             if (e - s + 1) >= minSpikes:
                 windows.append((s, e))
@@ -214,11 +213,3 @@ function detect_windows_CH(trains, maxISI_ms, minSpikes):
             i = i + 1
 
     return windows
-
-trains = synspiketrain.trains
-bursts = synspiketrain.bursts
-
-detected_bursts = log_isi(trains, minSpikes=5)
-print(f"spike train: {trains}")
-print(f"actual bursts: {bursts}")
-print(f"bursts detected by LogISI: {detected_bursts}")
