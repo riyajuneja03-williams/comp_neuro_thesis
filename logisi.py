@@ -1,10 +1,8 @@
 import numpy as np
-import math 
-import synspiketrain
 from scipy.signal import find_peaks
 from matplotlib import pyplot as plt
 import seaborn as sns
-import statsmodels.api as sm
+from statsmodels.nonparametric.smoothers_lowess import lowess
 np.random.seed(1)
 
 def log_isi(trains, minSpikes=5):
@@ -34,12 +32,12 @@ def log_isi(trains, minSpikes=5):
     # if algorithm fails to derive ISIth, apply CH
     if ISIth is None or ISIth > 1000:
         core_windows = detect_windows_CH(trains, maxISI_ms=100, minSpikes=minSpikes)
-        return np.array(windows_to_bursts(trains, core_windows))
+        return windows_to_bursts(trains, core_windows)
 
     # if ISIth > 100, extend bursts to include spikes at boundaries
     if ISIth > 100:
         maxISI1 = 100
-        maxISI2 = ISIth
+        maxISI2 = min(ISIth) 
         extendFlag = True 
     else:
         maxISI1 = ISIth
@@ -95,7 +93,7 @@ def log_isi(trains, minSpikes=5):
                 cleaned.append((s2, e2))
 
     # convert windows to list-of-lists of spike times
-    return np.array(windows_to_bursts(trains, cleaned))
+    return windows_to_bursts(trains, cleaned)
 
 
 def windows_to_bursts(trains, windows):
@@ -107,6 +105,7 @@ def windows_to_bursts(trains, windows):
     trains: np.array
         array(s) of spike times
     windows: list
+        burst windows
 
     Returns
     -------
@@ -137,7 +136,10 @@ def compute_ISIth(trains):
 
     # calculate logISI
     ISI_ms = np.diff(trains) * 1000
-    logISI = np.log(ISI_ms)
+    ISI_ms = ISI_ms[np.isfinite(ISI_ms) & (ISI_ms > 0)]
+    if ISI_ms.size < 2:
+        return None
+    logISI = np.log10(ISI_ms)
 
     # compute histogram with bins of 0.1 in logISI units
     bins = np.arange(min(logISI), max(logISI) + 0.1, 0.1)
@@ -146,19 +148,24 @@ def compute_ISIth(trains):
     x = (edges[:-1] + edges[1:]) / 2
 
     # smooth g as a function of x using lowess, default is local linear regression aka degree = 1
-    g_smooth = sm.nonparametric.smoothers_lowess.lowess(y=g, x=x)
+    mask = np.isfinite(x) & np.isfinite(g)
+    x = x[mask]
+    g = g[mask]
+    if x.size < 3:
+        return None
+    g_smooth = lowess(g, x, return_sorted = False)
 
     # identify principle peaks (min distance = 2 bins)
-    peak_idxs = find_peaks(g_smooth, min_distance=2)
+    peak_idxs, _ = find_peaks(g_smooth, distance=2)
     if len(peak_idxs) == 0:
         return None
 
     # identify intra-burst peak: ISI < 100 ms, choose largest height
-    isi_at_x_ms = 10^x
+    isi_at_x_ms = 10 ** x
     candidates = [p for p in peak_idxs if isi_at_x_ms[p] < 100]
     if len(candidates) == 0:
         return None
-    p1 = np.argmax([g_smooth[p] for p in candidates])
+    p1 = candidates[np.argmax([g_smooth[p] for p in candidates])]
 
     # need at least one subsequent peak (p2 > p1) to define a valley
     subsequent = [p for p in peak_idxs if p > p1]
@@ -189,9 +196,29 @@ def compute_ISIth(trains):
     if best_min_idx is None:
         return None
 
-    return 10^(x[best_min_idx])   # ISIth in ms
+    return 10 ** (x[best_min_idx])   # ISIth in ms
 
 def detect_windows_CH(trains, maxISI_ms, minSpikes):
+
+    """
+    CH algorithm: detect runs of consecutive ISIs < maxISI_ms
+
+    Parameters
+    ----------
+    trains: np.array
+        array(s) of spike times
+    maxISI_ms: integer
+        max interspike interval in ms
+    minSpikes: integer
+        minimum number of spikes
+
+    Returns
+    -------
+    windows : list
+        burst windows
+
+    """
+
     # CH algorithm: runs of consecutive ISIs < maxISI_ms, requiring at least minSpikes spikes
     ISI_ms = np.diff(trains) * 1000
     windows = []

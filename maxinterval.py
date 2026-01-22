@@ -48,13 +48,16 @@ def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetween
                     prev_burst = bursts.pop()
                     prev_burst.extend(single_burst)
                     bursts.append(prev_burst)
+                    single_burst = []
+                    continue
                 # remove bursts with duration < MinDurationBurst or spikes < MinNumSpikes
                 if (
                     len(single_burst) >= MinNumSpikes
                     and (single_burst[-1] - single_burst[0]) >= MinDurationBurst
                 ):
                     bursts.append(single_burst)
-                    single_burst = []
+                
+                single_burst = []
         else:
             if ISI <= MaxISIStart:  # scan spike train until find ISI ≤ MaxISIStart
                 burst = True
