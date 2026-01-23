@@ -100,7 +100,7 @@ def create_hist(var, fig_name, log_bool):
     plt.savefig(fig_path)
     plt.close()
 
-def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
+def create_frcv_scatterplot(var, fig_name, ax=None, df=None):
     """
     Create scatterplot.
 
@@ -114,8 +114,6 @@ def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
         if given, plot on this axis
     df: pandas dataframe
         if given, get data from this
-    hue_norm: tuple(vmin, vmax)
-        if given, use to scale hue colors
 
     Returns
     -------
@@ -137,8 +135,7 @@ def create_frcv_scatterplot(var, fig_name, ax=None, df=None, hue_norm=None):
     sns.scatterplot(
         data=df, x="actual_rate", y="cv", ax=ax,
         hue=var if var is not None else None,
-        legend=True if var is not None else None,
-        hue_norm=hue_norm
+        legend=True if var is not None else None
     )
 
     if not created_ax:
