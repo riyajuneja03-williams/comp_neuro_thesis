@@ -28,23 +28,63 @@ df = pd.read_csv(frame_path)
     # fig_create.raster_plot(all_trains, master_path)
 
 # create heatmaps
-fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
-fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
+# fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
+# fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
 
 # create histograms
-fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
-fig_create.create_hist('cv', 'cv_hist.png', log_bool=False)
-fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
+# fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
+# fig_create.create_hist('cv', 'cv_hist.png', log_bool=False)
+# fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
+
+def shared_hue_norm(df, cols):
+    """
+    Computed shared hue max and min.
+
+    Parameters
+    ----------
+    df: pd dataframe
+        dataframe
+
+    cols: list
+        list of cols for dataframe
+
+    Returns
+    -------
+    tuple
+        (min, max) for hues
+
+    """
+    vals = pd.concat([df[c] for c in cols])
+    return vals.min(), vals.max()
 
 # create indiv scatterplots
-vars = [# 'rate', 'prob_burst', 'prob_end', 
-    'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
-    'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
-    'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc',
-    'logisi_num_spikes', 'logisi_burst_firing_rate', 'logisi_avg_ISI_within_bursts', 'logisi_burst_rate', 'logisi_%_spikes_in_burst', 'logisi_%_time_spent_bursting', 'logisi_firing_rate_non_bursting', 'logisi_burst_firing_rate_inc'
+# scale hues for comparison of burst stats
+prefixes = ["", "ps_", "mi_", "logisi_"]
+
+base_vars = [
+    "num_spikes",
+    "burst_firing_rate",
+    "avg_ISI_within_bursts",
+    "burst_rate",
+    "%_spikes_in_burst",
+    "%_time_spent_bursting",
+    "firing_rate_non_bursting",
+    "burst_firing_rate_inc",
 ]
 
-for var in vars:
+for base in base_vars:
+    var_list = [f"{p}{base}" for p in prefixes]          
+    hue_norm = shared_hue_norm(df, var_list)        
+    for var in var_list:
+        fig_create.create_frcv_scatterplot(
+            var,
+            fig_name=f"{var}_scatterplot.png",
+            hue_norm=hue_norm
+        )
+
+# rest of the scatterplots
+other_vars = ['rate', 'prob_burst', 'prob_end']
+for var in other_vars:
     fig_name = f"{var}_scatterplot.png"
     fig_create.create_frcv_scatterplot(var, fig_name)
 

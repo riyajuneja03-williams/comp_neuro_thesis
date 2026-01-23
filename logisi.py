@@ -6,21 +6,6 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 np.random.seed(1)
 
 def log_isi(trains, minSpikes=5):
-    """
-    Detects bursts using LogISI method.
-
-    Parameters
-    ----------
-    trains: np.array
-        array(s) of spike times
-    minSpikes: integer
-        minimum number of spikes in burst, default 5
-
-    Returns
-    -------
-    bursts (array): list of lists of spike times that make up each burst
-
-    """
 
     # if spike train not long enough
     if len(trains) < 2:
@@ -180,12 +165,10 @@ def compute_ISIth(trains):
     for p2 in subsequent:
         left = p1
         right = p2
-
         m = np.argmin(g_smooth[left:right+1]) + left
         gmin = g_smooth[m]
         g1 = g_smooth[p1]
         g2 = g_smooth[p2]
-
         void = 1 - gmin / np.sqrt(g1 * g2)
     
         # select ISIth
@@ -218,8 +201,6 @@ def detect_windows_CH(trains, maxISI_ms, minSpikes):
         burst windows
 
     """
-
-    # CH algorithm: runs of consecutive ISIs < maxISI_ms, requiring at least minSpikes spikes
     ISI_ms = np.diff(trains) * 1000
     windows = []
 
