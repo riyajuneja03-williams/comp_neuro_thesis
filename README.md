@@ -19,14 +19,18 @@ Steps to run:
     d. apply_mi.py: apply MaxInterval method to spike trains & save to files
 
     e. apply_logisi.py: apply LogISI method to spike trains & save to files
-   
-    f. save_ps.py: append poisson surprise data to dataframe
-   
-    g. save_mi.py: append MaxInterval data to dataframe
 
-    h. save_logisi.py: append LogISI data to dataframe
+    f. apply_cma.py: apply CMA method to spike trains & save to files
    
-    i. all_figs.py: create & save all figures
+    g. save_ps.py: append poisson surprise data to dataframe
+   
+    h. save_mi.py: append MaxInterval data to dataframe
+
+    i. save_logisi.py: append LogISI data to dataframe
+
+    j. save_cma.py: append CMA data to dataframe
+   
+    k. all_figs.py: create & save all figures
 
    
 5. All data & figures will be saved in the thesis directory
@@ -34,17 +38,19 @@ Steps to run:
 
 **Scripts that don't need to be run**
 
-a. fig_create.py: helper function to create figures (don't need to run)
+a. fig_create.py: helper function to create figures 
     
-b. logisi.py: helper function to detect bursts using LogISI method (don't need to run)
+b. logisi.py: helper function to detect bursts using LogISI method 
     
-c. maxinterval.py: helper function to detect bursts using MaxInterval method (don't need to run)
+c. maxinterval.py: helper function to detect bursts using MaxInterval method
     
-d. poissonsurprise.py: helper function to detect bursts using poisson surprise method (don't need to run)
+d. poissonsurprise.py: helper function to detect bursts using poisson surprise method 
+
+e. cma.py: helper function to detect bursts using cumulative moving average method 
+
+f. synspiketrain.py: helper function to generate synthetic spike trains 
     
-e. synspiketrain.py: helper function to generate synthetic spike trains (don't need to run)
-    
-f. stats.py: helper function to generate spike & burst statistics for spike train (don't need to run)
+g. stats.py: helper function to generate spike & burst statistics for spike train 
 
 
 **VIRTUAL ENVIRONMENT**
