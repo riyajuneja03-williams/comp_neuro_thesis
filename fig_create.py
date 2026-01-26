@@ -174,6 +174,7 @@ def compare_methods(param_num, train_num):
     ps_bursts = []
     mi_bursts = []
     logisi_bursts = []
+    cma_bursts = []
 
     param_name = f'param_{param_num:04d}'
     train_name = f'train_{train_num:03d}'
@@ -214,6 +215,15 @@ def compare_methods(param_num, train_num):
                 continue
             bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
             logisi_bursts.append([float(burst) for burst in bursts])
+    
+    cma_path = os.path.join(path_name, 'cma_bursts.txt')
+    with open(cma_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
+            cma_bursts.append([float(burst) for burst in bursts])
     
     # set up parameters
     fig, ax = plt.subplots(figsize=(8, 2))
@@ -282,12 +292,13 @@ def compare_methods(param_num, train_num):
     plot_bursts(ax, ps_bursts, y_row=1, burst_colors=burst_colors, marker=marker, size=size)
     plot_bursts(ax, mi_bursts, y_row=2, burst_colors=burst_colors, marker=marker, size=size)
     plot_bursts(ax, logisi_bursts, y_row=3, burst_colors=burst_colors, marker=marker, size=size)
+    plot_bursts(ax, cma_bursts, y_row=4, burst_colors=burst_colors, marker=marker, size=size)
 
     # label figure
-    ax.set_yticks([0, 1, 2, 3])
-    ax.set_yticklabels(["original", "poisson surprise", "max interval", "logISI"])
+    ax.set_yticks([0, 1, 2, 3, 4])
+    ax.set_yticklabels(["original", "poisson surprise", "max interval", "logISI", "CMA"])
     ax.set_xlabel("Time")
-    ax.set_ylim(-0.25, 3.25)
+    ax.set_ylim(-0.25, 4.25)
     if len(train) > 0:
         ax.set_xlim(min(train), max(train))
 

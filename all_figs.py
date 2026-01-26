@@ -28,20 +28,21 @@ df = pd.read_csv(frame_path)
     # fig_create.raster_plot(all_trains, master_path)
 
 # create heatmaps
-fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
-fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
+# fig_create.create_heatmap('rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
+# fig_create.create_heatmap('rate', 'burst_rate', 'cv', 'cv_heatmap.png')
 
 # create histograms
-fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
-fig_create.create_hist('cv', 'cv_hist.png', log_bool=False)
-fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
+# fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
+# fig_create.create_hist('cv', 'cv_hist.png', log_bool=False)
+# fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
 
 # create indiv scatterplots
-vars = ['rate', 'prob_burst', 'prob_end', 
-    'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
-    'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
-    'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc',
-    'logisi_num_spikes', 'logisi_burst_firing_rate', 'logisi_avg_ISI_within_bursts', 'logisi_burst_rate', 'logisi_%_spikes_in_burst', 'logisi_%_time_spent_bursting', 'logisi_firing_rate_non_bursting', 'logisi_burst_firing_rate_inc'
+vars = [# 'rate', 'prob_burst', 'prob_end', 
+    #'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
+    #'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
+    #'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc',
+    #'logisi_num_spikes', 'logisi_burst_firing_rate', 'logisi_avg_ISI_within_bursts', 'logisi_burst_rate', 'logisi_%_spikes_in_burst', 'logisi_%_time_spent_bursting', 'logisi_firing_rate_non_bursting', 'logisi_burst_firing_rate_inc',
+    'cma_num_spikes', 'cma_burst_firing_rate', 'cma_avg_ISI_within_bursts', 'cma_burst_rate', 'cma_%_spikes_in_burst', 'cma_%_time_spent_bursting', 'cma_firing_rate_non_bursting', 'cma_burst_firing_rate_inc',
 ]
 
 for var in vars:
@@ -49,25 +50,25 @@ for var in vars:
     fig_create.create_frcv_scatterplot(var, fig_name)
 
 # create 3x3 scatterplot
-prob_vals = [0.2, 0.5, 0.8]
-fig, axes = plt.subplots(3, 3, figsize=(9,9), sharex=True, sharey=True)
-for i, pb in enumerate(prob_vals):
-    for j, pe in enumerate(prob_vals):
-        sub_df = df[(df.prob_burst == pb) & (df.prob_end == pe)]
-        fig_create.create_frcv_scatterplot(var = None, fig_name = None, ax=axes[i, j], df=sub_df)
-        if i == 0:
-            axes[i, j].set_title(f"prob_end = {pe}")
-        if j == 0:
-            axes[i, j].set_ylabel(f"prob_burst = {pb}")
-xlim = (df.actual_rate.min(), df.actual_rate.max())
-ylim = (df.cv.min(), df.cv.max())
-for ax in axes.flat:
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
-fig.supylabel("coefficient of variation")
-fig.supxlabel("firing rate")
-plt.tight_layout()
-plt.savefig(os.path.join('thesis', 'fr_cv_probs_grid.png'))
-plt.close()
+# prob_vals = [0.2, 0.5, 0.8]
+# fig, axes = plt.subplots(3, 3, figsize=(9,9), sharex=True, sharey=True)
+# for i, pb in enumerate(prob_vals):
+    # for j, pe in enumerate(prob_vals):
+        # sub_df = df[(df.prob_burst == pb) & (df.prob_end == pe)]
+        # fig_create.create_frcv_scatterplot(var = None, fig_name = None, ax=axes[i, j], df=sub_df)
+        # if i == 0:
+            # axes[i, j].set_title(f"prob_end = {pe}")
+        # if j == 0:
+            # axes[i, j].set_ylabel(f"prob_burst = {pb}")
+# xlim = (df.actual_rate.min(), df.actual_rate.max())
+# ylim = (df.cv.min(), df.cv.max())
+# for ax in axes.flat:
+    # ax.set_xlim(xlim)
+    # ax.set_ylim(ylim)
+# fig.supylabel("coefficient of variation")
+# fig.supxlabel("firing rate")
+# plt.tight_layout()
+# plt.savefig(os.path.join('thesis', 'fr_cv_probs_grid.png'))
+# plt.close()
 
 fig_create.compare_methods(99, 99)

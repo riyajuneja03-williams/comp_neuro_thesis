@@ -6,7 +6,21 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 np.random.seed(1)
 
 def log_isi(trains, minSpikes=5):
+    """
+    Detects bursts using LogISI method.
 
+    Parameters
+    ----------
+    trains: np.array
+        array(s) of spike times
+    minSpikes: integer
+        minimum number of spikes
+
+    Returns
+    -------
+    bursts (array): list of lists of spike times that make up each burst
+
+    """   
     # if spike train not long enough
     if len(trains) < 2:
         return []
@@ -40,42 +54,42 @@ def log_isi(trains, minSpikes=5):
 
     # join two consecutive bursts if separated by single interval smaller than maxISI2
     merged = [core_windows[0]]
-    for (s2, e2) in core_windows[1:]:
-        (s1, e1) = merged[-1]
-        gap_ms = (trains[s2] - trains[e1]) * 1000
+    for (start2, end2) in core_windows[1:]:
+        (start1, end1) = merged[-1]
+        gap_ms = (trains[start2] - trains[end1]) * 1000
 
         if gap_ms <= maxISI2:
-            merged[-1] = (s1, e2)
+            merged[-1] = (start1, end2)
         else:
-            merged.append((s2, e2))
+            merged.append((start2, end2))
 
     # extend at burst boundaries using CH and maxISI2
     ISI_ms = np.diff(trains) * 1000  # length = length(trains) - 1
     extended = []
 
-    for (s, e) in merged: # s = start of burst, e = end of burst
+    for (start, end) in merged: # s = start of burst, e = end of burst
         # extend left while prior ISI < maxISI2
-        while s > 0 and ISI_ms[s-1] < maxISI2:
-            s = s - 1
+        while start > 0 and ISI_ms[start-1] < maxISI2:
+            start = start - 1
 
         # extend right while ISI at e < maxISI2 
-        while e < len(trains)-1 and ISI_ms[e] < maxISI2:
-            e = e + 1
+        while end < len(trains)-1 and ISI_ms[end] < maxISI2:
+            end = end + 1
 
-        extended.append((s, e))
+        extended.append((start, end))
 
     # remerge any overlapping windows
     extended.sort(key = lambda x: x[0])
     cleaned = []
-    for (s2, e2) in extended:
+    for (start2, end2) in extended:
         if len(cleaned) == 0:
-            cleaned.append((s2, e2))
+            cleaned.append((start2, end2))
         else:
-            (s1, e1) = cleaned[-1]
-            if s2 <= e1 + 1:
-                cleaned[-1] = (s1, max(e1, e2))
+            (start1, end1) = cleaned[-1]
+            if start2 <= end1 + 1:
+                cleaned[-1] = (start1, max(end1, end2))
             else:
-                cleaned.append((s2, e2))
+                cleaned.append((start2, end2))
 
     # convert windows to list-of-lists of spike times
     return windows_to_bursts(trains, cleaned)
