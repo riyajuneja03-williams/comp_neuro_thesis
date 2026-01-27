@@ -112,3 +112,38 @@ def poisson_burst(
                 if burst is not None:
                     burst.append(t)
     return np.array(spikes), all_bursts
+
+def return_params():
+    T = 1
+    dt = 1e-3
+    N = 100
+
+    # refractory parameters
+    tau_ref = 0
+    tau_burst = 0
+
+    # define parameter sets
+    rates = np.arange(2, 102, 4)
+    rates_list = rates.tolist()
+    prob_burst = [0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8]
+    prob_exit = [0.2, 0.5, 0.8, 0.2, 0.5, 0.8, 0.2, 0.5, 0.8]
+    params = []
+    probs = [[prob_burst[0], prob_exit[0]], 
+            [prob_burst[1], prob_exit[1]], 
+            [prob_burst[2], prob_exit[2]], 
+            [prob_burst[3], prob_exit[3]], 
+            [prob_burst[4], prob_exit[4]], 
+            [prob_burst[5], prob_exit[5]], 
+            [prob_burst[6], prob_exit[6]], 
+            [prob_burst[7], prob_exit[7]], 
+            [prob_burst[8], prob_exit[8]]]
+
+    for rate in rates_list:
+        burst_rates = [2 * rate, 5 * rate, 10 * rate]
+        for burst_rate in burst_rates:
+            for prob in probs:
+                burst_prob = prob[0]
+                exit_prob = prob[1]
+                params.append([rate, burst_rate, burst_prob, exit_prob])
+
+    return T, N, params, tau_ref, tau_burst

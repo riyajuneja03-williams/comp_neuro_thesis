@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import seaborn as sns
 import sys
-import synthetic_saver
+import synspiketrain
 
 # load df
 frame_path = os.path.join('thesis', 'data_frame.csv')
@@ -13,10 +13,12 @@ df = pd.read_csv(frame_path)
 new_cols = ['ps_bursts', 'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc']
 df[new_cols] = np.nan
 
-for i, param in enumerate(synthetic_saver.params):
-    for j in range(0, synthetic_saver.N):
+(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
 
-        row = i * synthetic_saver.N + j
+for i, param in enumerate(params):
+    for j in range(0, N):
+
+        row = i * N + j
 
         frame_data = {}
         param_name = f'param_{i:04d}'

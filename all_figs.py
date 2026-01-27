@@ -4,16 +4,18 @@ import os
 import pandas as pd
 import seaborn as sns
 import sys
-import synthetic_saver
+import synspiketrain
 import fig_create
 
 frame_path = os.path.join('thesis', 'data_frame.csv')
 df = pd.read_csv(frame_path)
 
+(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
+
 # raster plots
-# for i, param in enumerate(synthetic_saver.params):
+# for i, param in enumerate(params):
     # all_trains = []
-    # for j in range(0, synthetic_saver.N):
+    # for j in range(0, N):
         # trains = []
         # param_name = f'param_{i:04d}'
         # train_name = f'train_{j:03d}'

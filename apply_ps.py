@@ -4,17 +4,14 @@ import os
 import pandas as pd
 import seaborn as sns
 import sys
-import synthetic_saver
+import synspiketrain
 import poissonsurprise
 import stats
 
-param = synthetic_saver.params
-T = synthetic_saver.T
-tau_ref = synthetic_saver.tau_ref
-tau_burst = synthetic_saver.tau_burst
+(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
 
-for i, param in enumerate(synthetic_saver.params):
-    for j in range(0, synthetic_saver.N):
+for i, param in enumerate(params):
+    for j in range(0, N):
 
         # get spike train
         trains = []
