@@ -121,8 +121,7 @@ def return_params():
         for d in D:
             for train_rate in train_rates:
                 for r in rho:
-                    rng = np.random.default_rng(0)
-                    burst_rate = rng.uniform(0.2, 2.01) # burst rates = [0.2, 2.01]
+                    burst_rate = np.random.uniform(0.2, 2.01) # burst rates = [0.2, 2.01]
                     single_burst_rate = min(r * train_rate, max_burst)
                     params.append([t, d, train_rate, burst_rate, single_burst_rate])
 
