@@ -45,7 +45,7 @@ for i, param in enumerate(params):
             'T': param[0],
             'D': param[1],
             'train_rate': param[2],
-            'burst_rate': param[3],
+            'predicted_burst_rate': param[3],
             'single_burst_rate': param[4],
         }
 

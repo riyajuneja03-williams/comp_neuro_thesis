@@ -9,7 +9,7 @@ import synspiketrain
 (D, T, N, params) = synspiketrain.return_params()
 
 # create dataframe
-col_names = ['train_rate', 'burst_rate', 'single_burst_rate', 'D', 'T',
+col_names = ['train_rate', 'predicted_burst_rate', 'single_burst_rate', 'D', 'T',
              'actual_rate', 'cv', 'ISI_dist', 
              'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc']
 df = pd.DataFrame(columns=col_names)

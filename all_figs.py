@@ -28,8 +28,9 @@ for i, param in enumerate(params):
     fig_create.raster_plot(all_trains, master_path)
 
 # create heatmaps
-fig_create.create_heatmap('train_rate', 'burst_rate', 'actual_rate', 'fr_heatmap.png')
-fig_create.create_heatmap('train_rate', 'burst_rate', 'cv', 'cv_heatmap.png')
+fig_create.create_heatmap('train_rate', 'single_burst_rate', 'actual_rate', 'fr_heatmap.png')
+fig_create.create_heatmap('train_rate', 'single_burst_rate', 'cv', 'cv_heatmap.png')
+
 
 # create histograms
 fig_create.create_hist('actual_rate', 'rate_hist.png', log_bool=False)
@@ -38,7 +39,8 @@ fig_create.create_hist('actual_rate', 'log_rate_hist.png', log_bool=True)
 
 # create indiv scatterplots
 T_vals = [10, 30]
-per_T_vars = ["burst_rate", "D"]
+per_T_vars = ["predicted_burst_rate", "D"]
+
 
 other_vars = [
     'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',

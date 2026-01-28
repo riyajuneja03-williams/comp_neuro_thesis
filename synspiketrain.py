@@ -11,7 +11,7 @@ def poisson_burst(T, D, train_rate, burst_rate, single_burst_rate):
 
     Parameters
     ----------
-    rate : float
+    train_rate : float
         Baseline firing rate of the spike train
     burst_rate : float
         Rate of bursts
@@ -123,7 +123,7 @@ def return_params():
                 for r in rho:
                     rng = np.random.default_rng(0)
                     burst_rate = rng.uniform(0.2, 2.01) # burst rates = [0.2, 2.01]
-                    single_burst_rate = min(r * burst_rate, max_burst)
+                    single_burst_rate = min(r * train_rate, max_burst)
                     params.append([t, d, train_rate, burst_rate, single_burst_rate])
 
     return D, T, N, params
