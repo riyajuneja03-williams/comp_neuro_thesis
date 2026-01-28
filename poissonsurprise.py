@@ -1,6 +1,4 @@
 import numpy as np
-import math 
-import synspiketrain
 from scipy.stats import poisson
 np.random.seed(1)
 

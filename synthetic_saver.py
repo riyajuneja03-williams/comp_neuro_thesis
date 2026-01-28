@@ -6,7 +6,7 @@ import seaborn as sns
 import synspiketrain
 import stats
 
-(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
+(D, T, N, params) = synspiketrain.return_params()
 
 # make directory for each parameter
 for i, param in enumerate(params):
@@ -23,13 +23,11 @@ for i, param in enumerate(params):
 
         # simulate trains
         trains, bursts = synspiketrain.poisson_burst(
-            rate=param[0],  # rate
-            burst_rate=param[1],  # burst rate
-            T=T,  # cut off time
-            tau_ref=tau_ref,  # spike refractory period
-            tau_burst=tau_burst,  # burst refractory period
-            prob_burst=param[2],  # probability of entering a burst
-            prob_end=param[3],  # probability of exiting a burst
+            T = param[0],
+            D = param[1],
+            train_rate=param[2],
+            burst_rate=param[3],
+            single_burst_rate=param[4],
         )
 
         # write train to file
@@ -44,16 +42,14 @@ for i, param in enumerate(params):
         }
 
         parameters = {
-            "rate": param[0],  
-            "burst_rate_expected": param[1], 
-            "T": T,  
-            "tau_ref": tau_ref, 
-            "tau_burst": tau_burst,  
-            "prob_burst": param[2], 
-            "prob_end": param[3]
+            'T': param[0],
+            'D': param[1],
+            'train_rate': param[2],
+            'burst_rate': param[3],
+            'single_burst_rate': param[4],
         }
 
-        spikestats, burststats = stats.calculate_statistics(trains, bursts, param[0], T, param[1], param[2], param[3], tau_ref, tau_burst)
+        spikestats, burststats = stats.calculate_statistics(trains, bursts, param[0], param[1], param[2], param[3], param[4])
 
         # write metadata to file
         data_name = 'metadata.txt'

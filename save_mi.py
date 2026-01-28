@@ -10,7 +10,7 @@ import synspiketrain
 frame_path = os.path.join('thesis', 'data_frame.csv')
 df = pd.read_csv(frame_path)
 
-(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
+(D, T, N, params) = synspiketrain.return_params()
 
 new_cols = ['mi_bursts', 'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc']
 df[new_cols] = np.nan

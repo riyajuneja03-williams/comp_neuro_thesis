@@ -13,7 +13,7 @@ df = pd.read_csv(frame_path)
 new_cols = ['ps_bursts', 'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc']
 df[new_cols] = np.nan
 
-(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
+(D, T, N, params) = synspiketrain.return_params()
 
 for i, param in enumerate(params):
     for j in range(0, N):

@@ -2,45 +2,25 @@
 # generates a random spike train at some rate and plots using a built-in matplotlib graph
 
 import numpy as np
+import synspiketrain
 from matplotlib import pyplot as plt
 
-def poisson_burst(
-    rate,
-    burst_rate,
-    T,
-    tau_ref=0.05,
-    tau_burst=0.1,
-    prob_burst=0.2,
-    prob_end=0.5,
-    rng=None,
-    min_spikes=3
-):
+def poisson_burst(T, D, train_rate, burst_rate, single_burst_rate):
     """
-    Generate Poisson spike train of length T, rate rate, and refractory period.
-    There is a chance of bursting at rate burst_rate
+    Generate Poisson spike train.
 
     Parameters
     ----------
     rate : float
         Baseline firing rate of the spike train
     burst_rate : float
+        Rate of bursts
+    single_burst_rate : float
         Elevated firing rate used during a burst
     T : float
         Length of time for spike train (seconds)
-    dt : float
-        (optional) Small dt to determine binning of spike train
-    tau_ref : float
-        (optional) Refractory period, shortest time between spikes
-    tau_burst : float
-        (optional) Minimum time between consecutive bursts
-    prob_burst : float
-        (optional) Probability to enter a burst.
-    prob_end : float
-        (optional) Probability to end the burst.
-    rng : numpy.random.Generator, optional
-        Defaults to None, otherwise sets random seed
-    min_spikes: float
-        (optional) Minimum number of spikes to constitute a burst
+    D : float
+        Length of time for burst (seconds)
 
     Returns
     --------
@@ -48,102 +28,102 @@ def poisson_burst(
         array of spike times following poisson distribution
     np.ndarray
         array of arrays of spike times representing each burst
+    
+    Parameters
+        𝜆r – train rate (hz)
+        𝜆burst – burst rate (burst/s)
+        𝜆b – single burst rate (Hz)
+        D – burst length (s)
+        T – recording length (s)
+    Algorithm
+        Generate train s with Poisson rate 𝜆r
+        Generate burst start times with Poisson rate 𝜆burst
+        For each burst start time bi:
+        Generate spikes at Poisson rate 𝜆b for length [bi, bi + D]
+        Merge all spikes, track bursts
+    
     """
 
-    # set random seed
-    rng = np.random.default_rng(rng)
-
-    # maximum possible firing rate and guard against tau_ref = 0
-    r_ceil = 1 / max(tau_ref, 1e-12)
-
-    # enforce feasbility, rate must be < 1/tau_ref
-    if rate >= 1 / max(tau_ref, 1e-12):
-        raise ValueError(
-            f"Requested rate {rate:.3f} Hz >= 1/tau_ref = {r_ceil:.3f} Hz. Decrease rate or tau_ref."
-        )
-    if burst_rate > r_ceil:
-        raise ValueError(
-            f"Requested burst rate {burst_rate:.3f} Hz > 1/tau_ref = {r_ceil:.3f} Hz. Decrease burst rate or tau_ref"
-        )
-
     # empty array to hold spike times
-    spikes = []
-    all_bursts = []
-    t = 0
+    train = []
+    burst_starts = []
+    bursts = []
 
-    # bool for in burst
-    in_burst = False
+    def poisson_helper(rate, time, rng=None):
+        """
+        Generate poisson spike train of length time at rate rate.
+    
+        Parameters
+        ----------
+        rate : float
+            Baseline firing rate of the spike train
+        time : float
+            Length of time
+        rng : numpy.random.generator, optional
+            Defaults to none otherwise sets random seed
+        
+        Returns
+        ----------
+        list
+            list of spike times following poisson distribution
 
-    # time of last spike in burst
-    last_burst = -1
+        """
+    
+        if rate <= 0 or time <= 0:
+            return np.array([])
 
-    # loop through time and draw ISIs
-    while t < T:
-        burst = None
-        # enter burst if prob_burst met and time since last_burst is greater than tau_burst
-        if rng.random() < prob_burst and (t - last_burst) >= tau_burst:
-            in_burst = True
-            burst = []
-
-            # in the burst, update spike times
-            while in_burst and t < T:
-                # draw ISIs from burst_rate distribution and include tau_ref
-                t += rng.exponential(1 / burst_rate - tau_ref) + tau_ref
-
-                # only add spike if smaller than cutoff time
-                if t < T:
-                    spikes.append(t)
-                    burst.append(t)
-
-                # check if probability met to end the burst
-                # record exiting burst and last spike in burst
-                if rng.random() < prob_end:
-                    in_burst = False
-                    last_burst = t
-                    if len(burst) >= min_spikes:
-                        all_bursts.append(burst)
-        else:
-            # draw ISI from background rate if not in burst
-            t += rng.exponential(1 / rate - tau_ref) + tau_ref
+        # empty array to hold spike times
+        spikes = []
+        t = 0
+    
+        # draw ISIs from rate distribution
+        while t < time:
+            t += rng.exponential(1 / rate)
 
             # only add spike if smaller than cutoff time
-            if t < T:
+            if t < time:
                 spikes.append(t)
-                if burst is not None:
-                    burst.append(t)
-    return np.array(spikes), all_bursts
+        
+        return spikes
+
+    rng = np.random.default_rng()
+
+    train = poisson_helper(train_rate, T, rng=rng) # generate train with poisson rate train_rate
+    burst_starts = poisson_helper(burst_rate, T, rng=rng) # generate burst start times with poisson rate burst_rate
+
+    for start in burst_starts: # for each burst start time 
+        time = min(D, T-start)
+        burst_rel = poisson_helper(single_burst_rate, time, rng=rng) # generate spikes at poisson rate single_burst_rate for length (start, start + D)
+        burst = [t + start for t in burst_rel]
+        bursts.append(burst) # track bursts
+        train.extend(burst) # merge all spikes
+
+    train = np.array(sorted(train), dtype=float)
+    bursts = np.array([np.array(b, dtype=float) for b in bursts], dtype=object)
+
+    return train, bursts
 
 def return_params():
-    T = 1
+
+    # define parameters
+    T = [10, 30]
+    D = [0.01, 0.02, 0.05, 0.1, 0.2]
     dt = 1e-3
     N = 100
-
-    # refractory parameters
-    tau_ref = 0
-    tau_burst = 0
+    train_rates = [5, 10, 20, 30, 50]
+    rho = [2, 3, 5]
+    max_burst = 150 
 
     # define parameter sets
-    rates = np.arange(2, 102, 4)
-    rates_list = rates.tolist()
-    prob_burst = [0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8]
-    prob_exit = [0.2, 0.5, 0.8, 0.2, 0.5, 0.8, 0.2, 0.5, 0.8]
     params = []
-    probs = [[prob_burst[0], prob_exit[0]], 
-            [prob_burst[1], prob_exit[1]], 
-            [prob_burst[2], prob_exit[2]], 
-            [prob_burst[3], prob_exit[3]], 
-            [prob_burst[4], prob_exit[4]], 
-            [prob_burst[5], prob_exit[5]], 
-            [prob_burst[6], prob_exit[6]], 
-            [prob_burst[7], prob_exit[7]], 
-            [prob_burst[8], prob_exit[8]]]
 
-    for rate in rates_list:
-        burst_rates = [2 * rate, 5 * rate, 10 * rate]
-        for burst_rate in burst_rates:
-            for prob in probs:
-                burst_prob = prob[0]
-                exit_prob = prob[1]
-                params.append([rate, burst_rate, burst_prob, exit_prob])
+    for t in T:
+        for d in D:
+            for train_rate in train_rates:
+                for r in rho:
+                    rng = np.random.default_rng(0)
+                    burst_rate = rng.uniform(0.2, 2.01) # burst rates = [0.2, 2.01]
+                    single_burst_rate = min(r * burst_rate, max_burst)
+                    params.append([t, d, train_rate, burst_rate, single_burst_rate])
 
-    return T, N, params, tau_ref, tau_burst
+    return D, T, N, params

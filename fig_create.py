@@ -56,6 +56,8 @@ def create_heatmap(indep1, indep2, dep, fig_name):
     df = pd.read_csv(frame_path)
 
     # create dataframe
+    df[indep1] = df[indep1].round(3)
+    df[indep2] = df[indep2].round(3)
     df_pivoted = df.pivot_table(index=indep2, columns=indep1, values=dep, aggfunc='mean')
 
     # plot 
@@ -100,7 +102,7 @@ def create_hist(var, fig_name, log_bool):
     plt.savefig(fig_path)
     plt.close()
 
-def create_frcv_scatterplot(var, fig_name, ax=None, df=None):
+def create_frcv_scatterplot(var, fig_name, T=None):
     """
     Create scatterplot.
 
@@ -108,12 +110,8 @@ def create_frcv_scatterplot(var, fig_name, ax=None, df=None):
     ----------
     var: string
         variable to plot
-    fig_name: string
+    fig_name:
         name to save figure as
-    ax: axis
-        if given, plot on this axis
-    df: pandas dataframe
-        if given, get data from this
 
     Returns
     -------
@@ -121,38 +119,20 @@ def create_frcv_scatterplot(var, fig_name, ax=None, df=None):
 
     """
     frame_path = os.path.join('thesis', 'data_frame.csv')
-    if df is None:
-        df = pd.read_csv(frame_path)
-    xlim = (df["actual_rate"].min(), df["actual_rate"].max())
-    ylim = (df["cv"].min(), df["cv"].max())
+    df = pd.read_csv(frame_path)
 
-    created_ax = ax is None
-    if created_ax:
-        fig, ax = plt.subplots(figsize=(10,6))
-    else:
-        fig = ax.figure
+    if T is not None:
+        df = df[df["T"] == T]
 
-    sns.scatterplot(
-        data=df, x="actual_rate", y="cv", ax=ax,
-        hue=var if var is not None else None,
-        legend=True if var is not None else None
-    )
+    plt.figure(figsize=(10,6))
+    sns.scatterplot(data = df, x = "actual_rate", y = "cv", hue = str(var))
 
-    if not created_ax:
-        ax.set_xlabel("")
-        ax.set_ylabel("")
+    plt.xlabel("firing rate")
+    plt.ylabel("coefficient of variation")
 
-    if created_ax:
-        ax.set_xlabel("firing rate")
-        ax.set_ylabel("coefficient of variation")
-
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
-    
-    if created_ax and fig_name is not None:
-        fig_path = os.path.join('thesis', fig_name)
-        plt.savefig(fig_path)
-        plt.close()
+    fig_path = os.path.join('thesis', fig_name)
+    plt.savefig(fig_path)
+    plt.close()
 
 def compare_methods(param_num, train_num):
     """

@@ -8,7 +8,7 @@ import synspiketrain
 import logisi
 import stats
 
-(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
+(D, T, N, params) = synspiketrain.return_params()
 
 for i, param in enumerate(params):
     for j in range(0, N):
@@ -33,7 +33,7 @@ for i, param in enumerate(params):
                 np.savetxt(file, burst[None, :], fmt = "%f", newline="\n", delimiter = ",")
                 
         # calculate burst statistics for detected bursts
-        _, logisi_burststats = stats.calculate_statistics(trains, logisi_bursts, param[0], T, param[1], param[2], param[3], tau_ref, tau_burst)
+        _, logisi_burststats = stats.calculate_statistics(trains, logisi_bursts, param[0], param[1], param[2], param[3], param[4])
         burst_stats_file = 'logisi_stats.txt'
         stats_path = os.path.join('thesis', param_name, train_name, 'logisi_stats.txt')
 

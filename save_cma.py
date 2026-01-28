@@ -13,7 +13,7 @@ df = pd.read_csv(frame_path)
 new_cols = ['cma_bursts', 'cma_num_spikes', 'cma_burst_firing_rate', 'cma_avg_ISI_within_bursts', 'cma_burst_rate', 'cma_%_spikes_in_burst', 'cma_%_time_spent_bursting', 'cma_firing_rate_non_bursting', 'cma_burst_firing_rate_inc']
 df[new_cols] = np.nan
 
-(T, N, params, tau_ref, tau_burst) = synspiketrain.return_params()
+(D, T, N, params) = synspiketrain.return_params()
 
 for i, param in enumerate(params):
     for j in range(0, N):

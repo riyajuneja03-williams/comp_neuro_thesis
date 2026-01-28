@@ -1,10 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import synspiketrain
 np.random.seed(0)
 import math 
 
-def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, prob_exit, tau_ref, tau_burst):
+def calculate_statistics(spike_train, bursts, T, D, train_rate, burst_rate, single_burst_rate):
     """
     Calculate spike train and bursting statistics.
 
@@ -14,20 +13,16 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         List of spike times
     bursts : np.array
         List of burst times
-    rate : float
-        Baseline firing rate of the spike train
-    burst_rate : float
-        Elevated firing rate used during a burst
     T : float
         Length of time for spike train (seconds)
-    tau_ref : float
-        Refractory period, shortest time between spikes
-    tau_burst : float
-        Minimum time between consecutive bursts
-    prob_burst : float
-        Probability to enter a burst.
-    prob_end : float
-        Probability to end the burst.
+    D : float
+        Length of time for burst (seconds)
+    train_rate : float
+        Baseline firing rate of the spike train
+    burst_rate : float
+        Rate of bursts
+    single_burst_rate : float
+        Elevated firing rate used during a burst
 
     Returns
     --------
@@ -73,11 +68,13 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
     spike_train_no_bursts = np.atleast_1d(spike_train)
     burst_isis = []
     for burst in bursts:
+        if len(burst) == 0:
+            continue
         burst_count += len(burst)
         burst_time += (burst[-1] - burst[0])
         for i in range(len(burst) - 1):
-                burst_isi = burst[i+1] - burst[i]
-                burst_isis.append(float(burst_isi))
+            burst_isi = burst[i+1] - burst[i]
+            burst_isis.append(float(burst_isi))
         for b in burst:
             index_to_remove = np.where(spike_train_no_bursts == b)[0]
             spike_train_no_bursts = np.delete(spike_train_no_bursts, index_to_remove)
@@ -99,7 +96,7 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
     non_burst_firing_rate = len(spike_train_no_bursts) / time_not_in_burst if time_not_in_burst > 0 else 0.0
     burst_firing_rate_increase = burst_firing_rate - non_burst_firing_rate
 
-    burst_properties = {
+    burst_stats = {
         "num_spikes": num_spikes,
         "burst_firing_rate": burst_firing_rate, 
         "avg_ISI_within_bursts": avg_burst_isi,
@@ -110,4 +107,4 @@ def calculate_statistics(spike_train, bursts, rate, T, burst_rate, prob_burst, p
         "burst_firing_rate_inc": burst_firing_rate_increase,
     }
     
-    return spike_stats, burst_properties
+    return spike_stats, burst_stats

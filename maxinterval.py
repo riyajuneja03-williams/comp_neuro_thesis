@@ -1,4 +1,6 @@
-import synspiketrain
+import numpy as np
+import seaborn as sns
+np.random.seed(1)
 
 # MaxInterval
 def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetweenBursts = 0.2, MinDurationBurst = 0.01, MinNumSpikes = 3):
