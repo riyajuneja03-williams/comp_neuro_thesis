@@ -22,8 +22,22 @@ for i, param in enumerate(params):
             for line in file:
                 trains.append(float(line))
         
+        # get T
+        metadata = {}
+        meta_name = os.path.join('thesis', param_name, train_name, 'metadata.txt')
+        with open(meta_name, 'r') as file:
+            for line in file:
+                if ':' not in line:
+                    continue
+                key, value = line.strip().split(':', 1)
+                metadata[key] = value
+
+        # extract T (cast to float)
+        T = float(metadata['T'])
+        burst_rate = float(metadata['predicted_burst_rate'])
+        
         # apply PS
-        ps_bursts = [burst for burst, surprise in poissonsurprise.poisson_surprise(trains)]
+        ps_bursts = [burst for burst, surprise in poissonsurprise.poisson_surprise(trains, T=T)]
         
         # save detected bursts
         ps_path = os.path.join('thesis', param_name, train_name, 'poisson_bursts.txt')
@@ -32,7 +46,7 @@ for i, param in enumerate(params):
                 np.savetxt(file, burst[None, :], fmt = "%f", newline="\n", delimiter = ",")
                 
         # calculate burst statistics for detected bursts
-        _, ps_burststats = stats.calculate_statistics(trains, ps_bursts, param[0], param[1], param[2], param[3], param[4])
+        _, ps_burststats = stats.calculate_statistics(trains, ps_bursts, param[0], param[1], param[2], burst_rate, param[3])
         burst_stats_file = 'poisson_stats.txt'
         stats_path = os.path.join('thesis', param_name, train_name, 'poisson_stats.txt')
 

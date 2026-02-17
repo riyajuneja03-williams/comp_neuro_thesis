@@ -21,6 +21,16 @@ for i, param in enumerate(params):
         with open(file_name, 'r') as file:
             for line in file:
                 trains.append(float(line))
+
+        metadata = {}
+        meta_name = os.path.join('thesis', param_name, train_name, 'metadata.txt')
+        with open(meta_name, 'r') as file:
+            for line in file:
+                if ':' not in line:
+                    continue
+                key, value = line.strip().split(':', 1)
+                metadata[key] = value
+        burst_rate = float(metadata['predicted_burst_rate'])
         
         # apply MI
         mi_bursts = maxinterval.max_interval(trains)
@@ -33,7 +43,7 @@ for i, param in enumerate(params):
                 np.savetxt(file, burst[None, :], fmt = "%f", newline="\n", delimiter = ",")
                 
         # calculate burst statistics for detected bursts
-        _, mi_burststats = stats.calculate_statistics(trains, mi_bursts, param[0], param[1], param[2], param[3], param[4])
+        _, mi_burststats = stats.calculate_statistics(trains, mi_bursts, param[0], param[1], param[2], burst_rate, param[3])
         burst_stats_file = 'mi_stats.txt'
         stats_path = os.path.join('thesis', param_name, train_name, 'mi_stats.txt')
 

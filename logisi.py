@@ -5,7 +5,7 @@ import seaborn as sns
 from statsmodels.nonparametric.smoothers_lowess import lowess
 np.random.seed(1)
 
-def log_isi(trains, minSpikes=5):
+def log_isi(trains, minSpikes=5, maxSpikes=10):
     """
     Detects bursts using LogISI method.
 
@@ -31,7 +31,7 @@ def log_isi(trains, minSpikes=5):
     # if algorithm fails to derive ISIth, apply CH
     if ISIth is None or ISIth > 1000:
         core_windows = detect_windows_CH(trains, maxISI_ms=100, minSpikes=minSpikes)
-        return windows_to_bursts(trains, core_windows)
+        return windows_to_bursts(trains, core_windows, maxSpikes=maxSpikes)
 
     # if ISIth > 100, extend bursts to include spikes at boundaries
     if ISIth > 100:
@@ -50,7 +50,7 @@ def log_isi(trains, minSpikes=5):
 
     # if don't need to extend, return results 
     if extendFlag is False:
-        return windows_to_bursts(trains, core_windows)
+        return windows_to_bursts(trains, core_windows, maxSpikes=maxSpikes)
 
     # join two consecutive bursts if separated by single interval smaller than maxISI2
     merged = [core_windows[0]]
@@ -92,10 +92,10 @@ def log_isi(trains, minSpikes=5):
                 cleaned.append((start2, end2))
 
     # convert windows to list-of-lists of spike times
-    return windows_to_bursts(trains, cleaned)
+    return windows_to_bursts(trains, cleaned, maxSpikes=maxSpikes)
 
 
-def windows_to_bursts(trains, windows):
+def windows_to_bursts(trains, windows, maxSpikes = 10):
     """
     Creates list of spikes (burst times) in window.
 
@@ -113,7 +113,8 @@ def windows_to_bursts(trains, windows):
     """   
     bursts = []
     for (s, e) in windows:
-        bursts.append(trains[s : e+1])
+        burst = trains[s : e+1]
+        bursts.append(burst[:maxSpikes])
     return bursts
 
 

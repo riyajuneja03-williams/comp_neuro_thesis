@@ -31,7 +31,7 @@ def raster_plot(trains, path):
     plt.savefig(fig_path)
     plt.close()
     
-def create_heatmap(indep1, indep2, dep, fig_name):
+def create_heatmap(indep1, indep2, dep, fig_name, T):
     """
     Create heatmap.
 
@@ -54,6 +54,7 @@ def create_heatmap(indep1, indep2, dep, fig_name):
     # extract data from dataframe
     frame_path = os.path.join('thesis', 'data_frame.csv')
     df = pd.read_csv(frame_path)
+    df = df[df["T"] == T]
 
     # create dataframe
     df[indep1] = df[indep1].round(3)
@@ -69,7 +70,7 @@ def create_heatmap(indep1, indep2, dep, fig_name):
     plt.savefig(fig_path)
     plt.close()
 
-def create_hist(var, fig_name, log_bool):
+def create_hist(var, fig_name, log_bool, T):
     """
     Create histogram.
 
@@ -89,6 +90,7 @@ def create_hist(var, fig_name, log_bool):
     """
     frame_path = os.path.join('thesis', 'data_frame.csv')
     df = pd.read_csv(frame_path)
+    df = df[df["T"] == T]
     plt.figure(figsize=(10,6))
     if log_bool:
         sns.histplot(df, x=str(var), stat="probability", edgecolor="w", log_scale=True)
@@ -102,7 +104,7 @@ def create_hist(var, fig_name, log_bool):
     plt.savefig(fig_path)
     plt.close()
 
-def create_frcv_scatterplot(var, fig_name, T=None):
+def create_frcv_scatterplot(var, fig_name, T):
     """
     Create scatterplot.
 
@@ -121,8 +123,7 @@ def create_frcv_scatterplot(var, fig_name, T=None):
     frame_path = os.path.join('thesis', 'data_frame.csv')
     df = pd.read_csv(frame_path)
 
-    if T is not None:
-        df = df[df["T"] == T]
+    df = df[df["T"] == T]
 
     plt.figure(figsize=(10,6))
     sns.scatterplot(data = df, x = "actual_rate", y = "cv", hue = str(var))
@@ -206,11 +207,11 @@ def compare_methods(param_num, train_num):
             cma_bursts.append([float(burst) for burst in bursts])
     
     # set up parameters
-    fig, ax = plt.subplots(figsize=(8, 2))
+    fig, ax = plt.subplots(figsize=(6, 2), dpi=300, tight_layout=True)
     burst_colors = ["#1f78b4", "#e7298a"]
     train_color = "#bdbdbd"
     marker = '|'
-    size = 25
+    size = 100
 
     # plot original train
     sns.scatterplot(
@@ -220,7 +221,7 @@ def compare_methods(param_num, train_num):
         s = size,
         color = train_color,
         ax=ax,
-        linewidth=2,
+        linewidth=1,
         legend = False,
         alpha = 0.4
     )

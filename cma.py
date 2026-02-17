@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 np.random.seed(1)
 
-def cma_burst_detection(trains, min_spikes_in_burst=3):
+def cma_burst_detection(trains, min_spikes_in_burst=3, max_spikes_in_burst=10):
     """
     Detects bursts using CMA method.
 
@@ -25,15 +25,14 @@ def cma_burst_detection(trains, min_spikes_in_burst=3):
     if len(trains) < 3:
         return []
 
-    # compute log histogram
+    # compute histogram
     ISI_ms = np.diff(trains) * 1000
     ISI_ms = ISI_ms[np.isfinite(ISI_ms) & (ISI_ms > 0)]
     if ISI_ms.size < 2:
         return []
-    logISI = np.log10(ISI_ms)
-    bins = np.arange(min(logISI), max(logISI) + 0.1, 0.1)
-    y, edges = np.histogram(logISI, bins=bins)
-    x_mid = 0.5 * (edges[:-1] + edges[1:]) / 2
+    bins = np.arange(min(ISI_ms), max(ISI_ms) + 0.1, 0.1)
+    y, edges = np.histogram(ISI_ms, bins=bins)
+    x_mid = (edges[:-1] + edges[1:]) / 2
 
     if sum(y) == 0:
         return []
@@ -59,22 +58,20 @@ def cma_burst_detection(trains, min_spikes_in_burst=3):
     else: alpha2 = 0.1
 
     # calculate ISI threshold xt1
-    xt1_log = find_xt(CMA, x_mid, max_index, target=alpha1 * CMA_max)
-    if xt1_log is None:
+    xt1 = find_xt(CMA, x_mid, max_index, target=alpha1 * CMA_max)
+    if xt1 is None:
         return []
-    xt1 = 10 ** xt1_log
 
     # detect burst cores
     burst_windows = detect_runs_of_ISIs_below(trains, maxISI_ms=xt1, minSpikes=min_spikes_in_burst)
+    cleaned = burst_windows
     if len(burst_windows) == 0:
         return []
 
     # calculate ISI threshold xt2
-    xt2_log = find_xt(CMA, x_mid, max_index, target=alpha2 * CMA_max)
+    xt2 = find_xt(CMA, x_mid, max_index, target=alpha2 * CMA_max)
 
-    if xt2_log is not None:
-
-        xt2 = 10 ** xt2_log 
+    if xt2 is not None:
 
         # find candidate burst related spikes
         br_windows = detect_runs_of_ISIs_below(trains, maxISI_ms=xt2, minSpikes=2)
@@ -123,7 +120,7 @@ def cma_burst_detection(trains, min_spikes_in_burst=3):
         # remerge any overlapping windows
         burst_windows.sort(key=lambda w: w[0])
         cleaned = [burst_windows[0]]
-        for (start2, end2) in extended:
+        for (start2, end2) in burst_windows[1:]:
             if len(cleaned) == 0:
                 cleaned.append((start2, end2))
             else:
@@ -134,7 +131,7 @@ def cma_burst_detection(trains, min_spikes_in_burst=3):
                     cleaned.append((start2, end2))
 
     # return list of lists of bursts
-    return windows_to_bursts(trains, cleaned)
+    return windows_to_bursts(trains, cleaned, max_spikes_in_burst=max_spikes_in_burst)
 
 
 def find_xt(CMA, x_mid, max_index, target):
@@ -214,7 +211,7 @@ def detect_runs_of_ISIs_below(trains, maxISI_ms, minSpikes):
     
     return windows
 
-def windows_to_bursts(trains, windows):
+def windows_to_bursts(trains, windows, max_spikes_in_burst = 10):
     """
     Creates list of spikes (burst times) in window.
 
@@ -232,5 +229,6 @@ def windows_to_bursts(trains, windows):
     """   
     bursts = []
     for (s, e) in windows:
-        bursts.append(trains[s : e+1])
+        burst = trains[s : e+1]
+        bursts.append(burst[:max_spikes_in_burst])
     return bursts

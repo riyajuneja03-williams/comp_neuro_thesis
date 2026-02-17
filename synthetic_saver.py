@@ -21,13 +21,15 @@ for i, param in enumerate(params):
         path = os.path.join(dir_name, subdir_name)
         os.makedirs(path, exist_ok=True) 
 
+        burst_rate=np.random.uniform(0.2, 2.01)
+
         # simulate trains
         trains, bursts = synspiketrain.poisson_burst(
             T = param[0],
             D = param[1],
             train_rate=param[2],
-            burst_rate=param[3],
-            single_burst_rate=param[4],
+            burst_rate=burst_rate, # burst rates = [0.2, 2.01],
+            single_burst_rate=param[3],
         )
 
         # write train to file
@@ -45,11 +47,11 @@ for i, param in enumerate(params):
             'T': param[0],
             'D': param[1],
             'train_rate': param[2],
-            'predicted_burst_rate': param[3],
-            'single_burst_rate': param[4],
+            'predicted_burst_rate': burst_rate,
+            'single_burst_rate': param[3],
         }
 
-        spikestats, burststats = stats.calculate_statistics(trains, bursts, param[0], param[1], param[2], param[3], param[4])
+        spikestats, burststats = stats.calculate_statistics(trains, bursts, param[0], param[1], param[2], burst_rate, param[3])
 
         # write metadata to file
         data_name = 'metadata.txt'

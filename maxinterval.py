@@ -1,9 +1,8 @@
 import numpy as np
-import seaborn as sns
 np.random.seed(1)
 
 # MaxInterval
-def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetweenBursts = 0.2, MinDurationBurst = 0.01, MinNumSpikes = 3):
+def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetweenBursts = 0.2, MinDurationBurst = 0.01, MinNumSpikes = 3, MaxNumSpikes = 10):
     """
     Detects bursts in spike train using MaxInterval method.
 
@@ -29,8 +28,8 @@ def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetween
 
     Returns
     --------
-    bursts : list
-        List of time intervals corresponding to bursts in the spike train.
+    bursts : list of lists
+        List of list of spike times.
     """
 
     bursts = []
@@ -42,22 +41,33 @@ def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetween
         ISI = spikes[i+1] - spikes[i]
         if burst == True: 
             if ISI < MaxISIEnd:  # while ISIs < MaxISIEnd, spikes are included in burst
-                single_burst.append(spikes[i + 1])
+                if len(single_burst) < MaxNumSpikes: # cap number of spikes in a burst
+                    single_burst.append(spikes[i + 1])
+                else:
+                    if (
+                        len(single_burst) >= MinNumSpikes
+                        and (single_burst[-1] - single_burst[0]) >= MinDurationBurst
+                    ):
+                        bursts.append(single_burst[:MaxNumSpikes])
+                    single_burst = [spikes[i + 1]]
+                    burst = True
+                    continue
             else:  # if ISI >= MaxISIEnd → burst ends
                 burst = False
                 # merge bursts less than MinIntervalBetweenBursts apart
-                if bursts and (single_burst[0] - bursts[-1][-1]) < MinIntervalBetweenBursts: 
-                    prev_burst = bursts.pop()
-                    prev_burst.extend(single_burst)
-                    bursts.append(prev_burst)
-                    single_burst = []
-                    continue
-                # remove bursts with duration < MinDurationBurst or spikes < MinNumSpikes
                 if (
                     len(single_burst) >= MinNumSpikes
                     and (single_burst[-1] - single_burst[0]) >= MinDurationBurst
                 ):
-                    bursts.append(single_burst)
+                    # remove bursts with duration < MinDurationBurst or spikes < MinNumSpikes
+                    if bursts and single_burst and (single_burst[0] - bursts[-1][-1]) < MinIntervalBetweenBursts: 
+                        prev_burst = bursts.pop()
+                        prev_burst.extend(single_burst)
+                        bursts.append(prev_burst[:MaxNumSpikes])
+                        single_burst = []
+                        continue
+                    else:
+                        bursts.append(single_burst[:MaxNumSpikes])
                 
                 single_burst = []
         else:
@@ -67,6 +77,6 @@ def max_interval(spikes, MaxISIStart = 0.17, MaxISIEnd = 0.3, MinIntervalBetween
 
     # if spike train ends, evaluate burst 
     if burst and (len(single_burst) >= MinNumSpikes and (single_burst[-1] - single_burst[0]) >= MinDurationBurst):
-        bursts.append(single_burst) 
+        bursts.append(single_burst[:MaxNumSpikes]) 
 
     return(bursts)
