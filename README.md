@@ -29,8 +29,12 @@ Steps to run:
     i. save_logisi.py: append LogISI data to dataframe
 
     j. save_cma.py: append CMA data to dataframe
+
+    k. apply_unified.py: apply unified method to spike trains & save to files
+
+    l. save_unified: append unified method data to dataframe
    
-    k. all_figs.py: create & save all figures
+    m. all_figs.py: create & save all figures
 
    
 5. All data & figures will be saved in the thesis directory
@@ -48,9 +52,11 @@ d. poissonsurprise.py: helper function to detect bursts using poisson surprise m
 
 e. cma.py: helper function to detect bursts using cumulative moving average method 
 
-f. synspiketrain.py: helper function to generate synthetic spike trains 
+f. unified_method.py: helper function of unified method of burst detection
+
+g. synspiketrain.py: helper function to generate synthetic spike trains 
     
-g. stats.py: helper function to generate spike & burst statistics for spike train 
+h. stats.py: helper function to generate spike & burst statistics for spike train 
 
 
 **VIRTUAL ENVIRONMENT**
