@@ -33,8 +33,10 @@ Steps to run:
     k. apply_unified.py: apply unified method to spike trains & save to files
 
     l. save_unified: append unified method data to dataframe
+
+    m. analyze_methods.py: compare sensitivity & specificity of methods
    
-    m. all_figs.py: create & save all figures
+    n. all_figs.py: create & save all figures
 
    
 5. All data & figures will be saved in the thesis directory
