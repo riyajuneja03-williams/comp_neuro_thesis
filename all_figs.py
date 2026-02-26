@@ -27,7 +27,6 @@ for i, param in enumerate(params):
         all_trains.append(trains)
     master_path = os.path.join('thesis', param_name)
     fig_create.raster_plot(all_trains, master_path)
-'''
 
 # create heatmaps
 T_vals = [10, 30]
@@ -59,7 +58,6 @@ for var in vars:
             T=T,
             fig_name=fig_name
         )
+'''
 
 fig_create.compare_methods(40, 40)
-fig_create.compare_methods(50, 50)
-
