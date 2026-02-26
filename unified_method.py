@@ -72,7 +72,24 @@ def unified_burst_detection(spikes, T):
                 else:
                     counts[spike] = 1
             burst = sorted([spike for spike, c in counts.items() if c >= 2]) # majority rules if spike is in burst
-            bursts.append(burst)
+            if len(burst) >= 3: # min spikes = 3 
+                if len(burst) <= 10: # max spikes = 10
+                    bursts.append(burst)
+                else:
+                    bursts.append(burst[:10])
+                    time_end = burst[9]
+                    new_all_bursts = []
+                    for burst in all_bursts:
+                        if burst in candidate_list:
+                            keep = [spike for spike in burst if spike > time_end]
+                            if keep:
+                                new_all_bursts.append(keep)
+                        else:
+                            new_all_bursts.append(burst)
+                    
+                    all_bursts = new_all_bursts
+                    all_bursts.sort()
+                    continue
 
         # remove candidates from all_bursts
         all_bursts = [b for b in all_bursts if b not in candidate_list]

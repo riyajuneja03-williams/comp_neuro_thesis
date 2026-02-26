@@ -58,6 +58,8 @@ for var in vars:
             T=T,
             fig_name=fig_name
         )
-'''
 
 fig_create.compare_methods(40, 40)
+'''
+
+fig_create.roc_curves()

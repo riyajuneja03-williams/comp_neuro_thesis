@@ -299,3 +299,97 @@ def compare_methods(param_num, train_num):
     fig_path = os.path.join(path_name, "compare_methods_raster.png")
     fig.savefig(fig_path)
     plt.close()
+
+def roc_curves():
+    """
+    Plot 1-specificity vs sensitivity to compare method 
+    """
+
+    methods = ["PS", "MI", "LogISI", "CMA", "Unified"]
+    sens = {method: [] for method in methods}
+    oneminusspec = {method: [] for method in methods}
+
+    for param_num in range(150):
+        for train_num in range(100):
+            param_name = f'param_{param_num:04d}'
+            train_name = f'train_{train_num:03d}'
+            path_name = os.path.join('thesis', param_name, train_name, 'analysis.txt')
+
+            with open(path_name, 'r') as file:
+                for line in file:
+                    if ':' not in line:
+                        continue
+                    key, value = line.strip().split(':')
+                    value = float(value)
+
+                    method, stat = key.split(", ")
+                    if stat == "sensitivity":
+                        sens[method].append(value)
+                    else:
+                        oneminusspec[method].append(value)
+    
+    # graph 1: 1-specificity vs sensitivity, all values color coded by method
+    plt.figure()
+
+    new_methods = ["PS", "MI", "LogISI", "CMA"]
+
+    for method in new_methods:
+        plt.scatter(
+            sens[method],
+            oneminusspec[method],
+            label=method,
+            alpha = 0.5
+        )
+    
+    plt.xlabel("Sensitivity")
+    plt.ylabel("1 - Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "method_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    # graph 2: 1-specificity vs sensitivity, all values for unified approach
+
+    plt.figure()
+    plt.scatter(
+        sens["Unified"],
+        oneminusspec["Unified"],
+        label="Unified",
+        alpha = 0.5
+    )
+    
+    plt.xlabel("Sensitivity")
+    plt.ylabel("1 - Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "unified_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    # graph 3: panel with 2 histograms, average shift in sensitivity and average shift in 1-specificity, BD methods → unified
+    # want all shifts in sensitivity to be + and 1-specificity to be -
+
+    sens_shift = []
+    spec_shift = []
+
+    for method in new_methods:
+        for i in range(len(sens[method])):
+            sens_shift.append(sens["Unified"][i] - sens[method][i])
+            spec_shift.append(oneminusspec["Unified"][i] - oneminusspec[method][i])
+    
+    fig, axes = plt.subplots(1, 2)
+
+    axes[0].hist(sens_shift)
+    axes[0].set_title("shift in sensitivity")
+    axes[1].hist(spec_shift)
+    axes[1].set_title("shift in 1 - specificity")
+    plt.tight_layout()
+
+    fig_path = os.path.join('thesis', "shift_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+

@@ -35,7 +35,14 @@ for i, param in enumerate(params):
         # write train to file
         spikes_name = 'spikes.txt'
         spikes_path = os.path.join(path, spikes_name)
-        np.savetxt(spikes_path, trains, fmt = "%f", newline="\n")
+        np.savetxt(spikes_path, trains, fmt = "%.6f", newline="\n")
+
+        # write bursts to file
+        bursts_name = 'bursts.txt'
+        bursts_path = os.path.join(path, bursts_name)
+        with open(bursts_path, "w") as file:
+            for burst in bursts:
+                file.write(",".join(f"{x:.6f}" for x in burst) + "\n")
 
         # define metadata 
         spikes_dict = {
