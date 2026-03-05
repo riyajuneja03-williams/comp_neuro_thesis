@@ -308,14 +308,26 @@ def roc_curves():
     methods = ["PS", "MI", "LogISI", "CMA", "Unified"]
     sens = {method: [] for method in methods}
     oneminusspec = {method: [] for method in methods}
+    params = {
+        "T": [],
+        "D": [],
+        "train_rate": [],
+        "predicted_burst_rate": [],
+        "single_burst_rate": []
+    }
 
+    # read in values
     for param_num in range(150):
         for train_num in range(100):
             param_name = f'param_{param_num:04d}'
             train_name = f'train_{train_num:03d}'
-            path_name = os.path.join('thesis', param_name, train_name, 'analysis.txt')
+            path1_name = os.path.join('thesis', param_name, train_name, 'analysis.txt')
+            path2_name = os.path.join('thesis', param_name, train_name, 'metadata.txt')
 
-            with open(path_name, 'r') as file:
+            metadata = {}
+            wanted = ["T", "D", "train_rate", "predicted_burst_rate", "single_burst_rate"]
+
+            with open(path1_name, 'r') as file:
                 for line in file:
                     if ':' not in line:
                         continue
@@ -327,6 +339,19 @@ def roc_curves():
                         sens[method].append(value)
                     else:
                         oneminusspec[method].append(value)
+            
+            with open(path2_name, 'r') as file:
+                for line in file:
+                    if ':' not in line:
+                        continue
+                    key, value = line.strip().split(':')
+                    key = key.strip()
+                    if key not in wanted:
+                        continue
+                    metadata[key] = float(value)
+
+            for key in wanted:
+                params[key].append(metadata[key])                    
     
     # graph 1: 1-specificity vs sensitivity, all values color coded by method
     plt.figure()
@@ -335,14 +360,14 @@ def roc_curves():
 
     for method in new_methods:
         plt.scatter(
+            oneminusspec[method], 
             sens[method],
-            oneminusspec[method],
             label=method,
-            alpha = 0.5
+            alpha = 0.25
         )
     
-    plt.xlabel("Sensitivity")
-    plt.ylabel("1 - Specificity")
+    plt.xlabel("1-Specificity")
+    plt.ylabel("Sensitivity")
     plt.title("Analysis of Burst Detection Method Performance")
     plt.legend()
 
@@ -354,14 +379,14 @@ def roc_curves():
 
     plt.figure()
     plt.scatter(
-        sens["Unified"],
         oneminusspec["Unified"],
+        sens["Unified"],
         label="Unified",
         alpha = 0.5
     )
     
-    plt.xlabel("Sensitivity")
-    plt.ylabel("1 - Specificity")
+    plt.xlabel("1-Specificity")
+    plt.ylabel("Sensitivity")
     plt.title("Analysis of Burst Detection Method Performance")
     plt.legend()
 
@@ -369,7 +394,77 @@ def roc_curves():
     plt.savefig(fig_path)
     plt.close()
 
-    # graph 3: panel with 2 histograms, average shift in sensitivity and average shift in 1-specificity, BD methods → unified
+    # graphs 4-6: 1-specificity vs sensitivity, all values for each method
+
+    plt.figure()
+    plt.scatter(
+        oneminusspec["PS"],
+        sens["PS"],
+        label="PS",
+        alpha = 0.5
+    )
+    
+    plt.xlabel("1-Specificity")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "ps_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+    plt.scatter(
+        oneminusspec["MI"],
+        sens["MI"],
+        label="MI",
+        alpha = 0.5
+    )
+    
+    plt.xlabel("1-Specificity")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "mi_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+    plt.scatter(
+        oneminusspec["LogISI"],
+        sens["LogISI"],
+        label="LogISI",
+        alpha = 0.5
+    )
+    
+    plt.xlabel("1-Specificity")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "logisi_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+    plt.scatter(
+        oneminusspec["CMA"],
+        sens["CMA"],
+        label="CMA",
+        alpha = 0.5
+    )
+    
+    plt.xlabel("1-Specificity")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "cma_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    # graph 7: panel with 2 histograms, average shift in sensitivity and average shift in 1-specificity, BD methods → unified
     # want all shifts in sensitivity to be + and 1-specificity to be -
 
     sens_shift = []
@@ -392,4 +487,193 @@ def roc_curves():
     plt.savefig(fig_path)
     plt.close()
 
+    # graphs 8-17: sensitivity/1-specificity vs each parameter
+    plt.figure()
 
+    for method in new_methods:
+        plt.scatter(
+            params["T"], 
+            sens[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("T")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "T_sens_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["T"], 
+            oneminusspec[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("T")
+    plt.ylabel("1-Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "T_spec_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["D"], 
+            sens[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("D")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "D_sens_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["D"], 
+            oneminusspec[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("D")
+    plt.ylabel("1-Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "D_spec_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["train_rate"], 
+            sens[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("train rate")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "trainrate_sens_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["train_rate"], 
+            oneminusspec[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("train rate")
+    plt.ylabel("1-Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "trainrate_spec_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["predicted_burst_rate"], 
+            sens[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("predicted burst rate")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "predburstrate_sens_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["predicted_burst_rate"], 
+            oneminusspec[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("predicted burst rate")
+    plt.ylabel("1-Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "predburstrate_spec_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["single_burst_rate"], 
+            sens[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("single burst rate")
+    plt.ylabel("Sensitivity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "singleburstrate_sens_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
+
+    plt.figure()
+
+    for method in new_methods:
+        plt.scatter(
+            params["single_burst_rate"], 
+            oneminusspec[method],
+            label=method,
+            alpha = 0.25
+        )
+    
+    plt.xlabel("single burst rate")
+    plt.ylabel("1-Specificity")
+    plt.title("Analysis of Burst Detection Method Performance")
+    plt.legend()
+
+    fig_path = os.path.join('thesis', "singleburstrate_spec_analysis.png")
+    plt.savefig(fig_path)
+    plt.close()
