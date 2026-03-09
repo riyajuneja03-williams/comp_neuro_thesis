@@ -516,7 +516,7 @@ def roc_curves():
     # graphs 12-21: sensitivity/1-specificity vs each parameter
     params_to_plot = ["T", "D", "train_rate", "single_burst_rate"]
 
-    metrics = [
+    stats = [
         ("sens", sens, "Sensitivity"),
         ("spec", oneminusspec, "1-Specificity"),
     ]
@@ -525,12 +525,11 @@ def roc_curves():
     for param in params_to_plot:
         X = np.array(params[param])
 
-        for metric, dict, ylabel in metrics:
+        for stat, dict, ylabel in stats:
             plt.figure()
 
             for method in new_methods:
                 vals = np.array(dict[method])
-
                 x_vals = np.unique(X)
                 means = [vals[X == x].mean() for x in x_vals]
                 sems = [sem(vals[X == x]) for x in x_vals]
@@ -542,19 +541,19 @@ def roc_curves():
             plt.title("Analysis of Burst Detection Method Performance")
             plt.legend()
 
-            fig_path = os.path.join('thesis', f"{param}_{metric}_analysis.png")
+            fig_path = os.path.join('thesis', f"{param}_{stat}_analysis.png")
             plt.savefig(fig_path)
             plt.close()
 
     # predicted burst rate
-    for metric_name, metric_dict, ylabel in metrics:
+    for stat, dict, ylabel in stats:
         fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
         for i, method in enumerate(new_methods):
             ax = axes.flatten()[i]
             ax.scatter(
                 params["predicted_burst_rate"],
-                metric_dict[method],
+                dict[method],
                 alpha=0.25
             )
             ax.set_title(method)
@@ -563,6 +562,6 @@ def roc_curves():
 
         plt.tight_layout()
 
-        fig_path = os.path.join('thesis', f"predburstrate_{metric_name}_analysis.png")
+        fig_path = os.path.join('thesis', f"predburstrate_{stat}_analysis.png")
         plt.savefig(fig_path)
         plt.close()
