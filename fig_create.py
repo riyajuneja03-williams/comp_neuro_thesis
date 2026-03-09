@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import seaborn as sns
 import sys
+from scipy.stats import sem
 
 def raster_plot(trains, path):
     """
@@ -464,216 +465,104 @@ def roc_curves():
     plt.savefig(fig_path)
     plt.close()
 
-    # graph 7: panel with 2 histograms, average shift in sensitivity and average shift in 1-specificity, BD methods → unified
+    # graph 7-11: panels with 2 histograms, average shift in sensitivity and average shift in 1-specificity, for each BD method → unified and then average → unified
     # want all shifts in sensitivity to be + and 1-specificity to be -
 
     sens_shift = []
     spec_shift = []
 
+    sens_shift_by_method = {method: [] for method in new_methods}
+    spec_shift_by_method = {method: [] for method in new_methods}
+
     for method in new_methods:
         for i in range(len(sens[method])):
-            sens_shift.append(sens["Unified"][i] - sens[method][i])
-            spec_shift.append(oneminusspec["Unified"][i] - oneminusspec[method][i])
+            sens_val = sens["Unified"][i] - sens[method][i]
+            spec_val = oneminusspec["Unified"][i] - oneminusspec[method][i]
+            
+            sens_shift.append(sens_val)
+            spec_shift.append(spec_val)
+
+            sens_shift_by_method[method].append(sens_val)
+            spec_shift_by_method[method].append(spec_val)
     
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].hist(sens_shift)
-    axes[0].set_title("shift in sensitivity")
-    axes[1].hist(spec_shift)
-    axes[1].set_title("shift in 1 - specificity")
-    plt.tight_layout()
+    sns.histplot(sens_shift, stat="probability", kde=True, ax=axes[0])
+    axes[0].set_title(f"Shift in sensitivity\nmean={np.mean(sens_shift):.3f}, median={np.median(sens_shift):.3f}")
 
+    sns.histplot(spec_shift, stat="probability", kde=True, ax=axes[1])
+    axes[1].set_title(f"Shift in 1 - specificity\nmean={np.mean(spec_shift):.3f}, median={np.median(spec_shift):.3f}")
+
+    plt.tight_layout()
     fig_path = os.path.join('thesis', "shift_analysis.png")
     plt.savefig(fig_path)
     plt.close()
 
-    # graphs 8-17: sensitivity/1-specificity vs each parameter
-    plt.figure()
-
     for method in new_methods:
-        plt.scatter(
-            params["T"], 
-            sens[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("T")
-    plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
+        fig, axes = plt.subplots(1, 2)
 
-    fig_path = os.path.join('thesis', "T_sens_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+        sns.histplot(sens_shift_by_method[method], stat="probability", kde=True, ax=axes[0])
+        axes[0].set_title(f"{method} sensitivity shift\nmean={np.mean(sens_shift_by_method[method]):.3f}, median={np.median(sens_shift_by_method[method]):.3f}")
 
-    plt.figure()
+        sns.histplot(spec_shift_by_method[method], stat="probability", kde=True, ax=axes[1])
+        axes[1].set_title(f"{method} 1-spec shift\nmean={np.mean(spec_shift_by_method[method]):.3f}, median={np.median(spec_shift_by_method[method]):.3f}")
 
-    for method in new_methods:
-        plt.scatter(
-            params["T"], 
-            oneminusspec[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("T")
-    plt.ylabel("1-Specificity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
+        plt.tight_layout()
 
-    fig_path = os.path.join('thesis', "T_spec_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+        fig_path = os.path.join('thesis', f"{method}_shift_analysis.png")
+        plt.savefig(fig_path)
+        plt.close(fig)
 
-    plt.figure()
+    # graphs 12-21: sensitivity/1-specificity vs each parameter
+    params_to_plot = ["T", "D", "train_rate", "single_burst_rate"]
 
-    for method in new_methods:
-        plt.scatter(
-            params["D"], 
-            sens[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("D")
-    plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
+    metrics = [
+        ("sens", sens, "Sensitivity"),
+        ("spec", oneminusspec, "1-Specificity"),
+    ]
 
-    fig_path = os.path.join('thesis', "D_sens_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+    # discrete parameters
+    for param in params_to_plot:
+        X = np.array(params[param])
 
-    plt.figure()
+        for metric, dict, ylabel in metrics:
+            plt.figure()
 
-    for method in new_methods:
-        plt.scatter(
-            params["D"], 
-            oneminusspec[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("D")
-    plt.ylabel("1-Specificity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
+            for method in new_methods:
+                vals = np.array(dict[method])
 
-    fig_path = os.path.join('thesis', "D_spec_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+                x_vals = np.unique(X)
+                means = [vals[X == x].mean() for x in x_vals]
+                sems = [sem(vals[X == x]) for x in x_vals]
 
-    plt.figure()
+                plt.errorbar(x_vals, means, yerr=sems, fmt='o', capsize=4, label=method)
 
-    for method in new_methods:
-        plt.scatter(
-            params["train_rate"], 
-            sens[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("train rate")
-    plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
+            plt.xlabel(param)
+            plt.ylabel(ylabel)
+            plt.title("Analysis of Burst Detection Method Performance")
+            plt.legend()
 
-    fig_path = os.path.join('thesis', "trainrate_sens_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+            fig_path = os.path.join('thesis', f"{param}_{metric}_analysis.png")
+            plt.savefig(fig_path)
+            plt.close()
 
-    plt.figure()
+    # predicted burst rate
+    for metric_name, metric_dict, ylabel in metrics:
+        fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
-    for method in new_methods:
-        plt.scatter(
-            params["train_rate"], 
-            oneminusspec[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("train rate")
-    plt.ylabel("1-Specificity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
+        for i, method in enumerate(new_methods):
+            ax = axes.flatten()[i]
+            ax.scatter(
+                params["predicted_burst_rate"],
+                metric_dict[method],
+                alpha=0.25
+            )
+            ax.set_title(method)
+            ax.set_xlabel("predicted burst rate")
+            ax.set_ylabel(ylabel)
 
-    fig_path = os.path.join('thesis', "trainrate_spec_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+        plt.tight_layout()
 
-    plt.figure()
-
-    for method in new_methods:
-        plt.scatter(
-            params["predicted_burst_rate"], 
-            sens[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("predicted burst rate")
-    plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
-
-    fig_path = os.path.join('thesis', "predburstrate_sens_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
-
-    plt.figure()
-
-    for method in new_methods:
-        plt.scatter(
-            params["predicted_burst_rate"], 
-            oneminusspec[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("predicted burst rate")
-    plt.ylabel("1-Specificity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
-
-    fig_path = os.path.join('thesis', "predburstrate_spec_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
-
-    plt.figure()
-
-    for method in new_methods:
-        plt.scatter(
-            params["single_burst_rate"], 
-            sens[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("single burst rate")
-    plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
-
-    fig_path = os.path.join('thesis', "singleburstrate_sens_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
-
-    plt.figure()
-
-    for method in new_methods:
-        plt.scatter(
-            params["single_burst_rate"], 
-            oneminusspec[method],
-            label=method,
-            alpha = 0.25
-        )
-    
-    plt.xlabel("single burst rate")
-    plt.ylabel("1-Specificity")
-    plt.title("Analysis of Burst Detection Method Performance")
-    plt.legend()
-
-    fig_path = os.path.join('thesis', "singleburstrate_spec_analysis.png")
-    plt.savefig(fig_path)
-    plt.close()
+        fig_path = os.path.join('thesis', f"predburstrate_{metric_name}_analysis.png")
+        plt.savefig(fig_path)
+        plt.close()
