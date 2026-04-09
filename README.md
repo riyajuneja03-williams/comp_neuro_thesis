@@ -32,7 +32,7 @@ Steps to run:
 
     k. apply_unified.py: apply unified method to spike trains & save to files
 
-    l. save_unified: append unified method data to dataframe
+    l. save_unified.py: append unified method data to dataframe
 
     m. analyze_methods.py: compare sensitivity & specificity of methods
    
