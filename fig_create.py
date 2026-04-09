@@ -332,7 +332,7 @@ def roc_curves():
                 for line in file:
                     if ':' not in line:
                         continue
-                    key, value = line.strip().split(':')
+                    key, value = line.strip().split(':', 1)
                     value = float(value)
 
                     method, stat = key.split(", ")
@@ -345,7 +345,7 @@ def roc_curves():
                 for line in file:
                     if ':' not in line:
                         continue
-                    key, value = line.strip().split(':')
+                    key, value = line.strip().split(':', 1)
                     key = key.strip()
                     if key not in wanted:
                         continue

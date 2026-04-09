@@ -26,7 +26,7 @@ for param_num in range(150):
                 if not line:
                     continue
                 bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
-                actual_bursts.extend([float(burst) for burst in bursts])
+                actual_bursts.extend([round(float(burst), 6) for burst in bursts])
         
         spikes_path = os.path.join(path_name, 'spikes.txt')
         with open(spikes_path, 'r') as file:
@@ -43,7 +43,7 @@ for param_num in range(150):
                 if not line:
                     continue
                 bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
-                ps_bursts.extend([float(burst) for burst in bursts])
+                ps_bursts.extend([round(float(burst), 6) for burst in bursts])
         
         mi_path = os.path.join(path_name, 'mi_bursts.txt')
         with open(mi_path, 'r') as file:
@@ -52,7 +52,7 @@ for param_num in range(150):
                 if not line:
                     continue
                 bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
-                mi_bursts.extend([float(burst) for burst in bursts])
+                mi_bursts.extend([round(float(burst), 6) for burst in bursts])
         
         logisi_path = os.path.join(path_name, 'logisi_bursts.txt')
         with open(logisi_path, 'r') as file:
@@ -61,7 +61,7 @@ for param_num in range(150):
                 if not line:
                     continue
                 bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
-                logisi_bursts.extend([float(burst) for burst in bursts])
+                logisi_bursts.extend([round(float(burst), 6) for burst in bursts])
         
         cma_path = os.path.join(path_name, 'cma_bursts.txt')
         with open(cma_path, 'r') as file:
@@ -70,7 +70,7 @@ for param_num in range(150):
                 if not line:
                     continue
                 bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
-                cma_bursts.extend([float(burst) for burst in bursts])
+                cma_bursts.extend([round(float(burst), 6) for burst in bursts])
         
         unified_path = os.path.join(path_name, 'unified_bursts.txt')
         with open(unified_path, 'r') as file:
@@ -98,7 +98,7 @@ for param_num in range(150):
             total_spikes_not_in_burst = len(train) - len(actual_bursts)
 
             for spike in bursts:
-                if spike in actual_bursts:
+                if round(spike, 6) in set(actual_bursts):
                     correctly_detected += 1
                 else: 
                     falsely_detected += 1

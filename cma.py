@@ -30,7 +30,11 @@ def cma_burst_detection(trains, min_spikes_in_burst=3, max_spikes_in_burst=10):
     ISI_ms = ISI_ms[np.isfinite(ISI_ms) & (ISI_ms > 0)]
     if ISI_ms.size < 2:
         return []
-    bins = np.arange(min(ISI_ms), max(ISI_ms) + 0.1, 0.1)
+    
+    isi_range = ISI_ms.max() - ISI_ms.min()
+    eps = max(isi_range / 1000, 0.01)
+    bins = np.arange(0, ISI_ms.max() + eps, eps)
+    
     y, edges = np.histogram(ISI_ms, bins=bins)
     x_mid = (edges[:-1] + edges[1:]) / 2
 
@@ -39,8 +43,15 @@ def cma_burst_detection(trains, min_spikes_in_burst=3, max_spikes_in_burst=10):
 
     # calculate CMA maximum
     CH = np.cumsum(y)
-    CMA = [CH[i] / (i+1) for i in range(len(y))]
-    max_index = np.argmax(CMA)
+    CMA = CH / np.arange(1, len(y) + 1)
+    #max_index = np.argmax(CMA)
+
+    min_peak_ms = 2.0
+    valid_indices = np.where(x_mid > min_peak_ms)[0]
+    if len(valid_indices) == 0:
+        return []
+    max_index = valid_indices[np.argmax(CMA[valid_indices])]
+
     CMA_max = CMA[max_index]
 
     # calculate skewness
@@ -155,19 +166,12 @@ def find_xt(CMA, x_mid, max_index, target):
         threshold
 
     """  
-    if max_index >= len(CMA) - 1:
-        return None
-
     # threshold is found at mid time point of ISI bin for which value of CMA is closest to alpha * CMAm
-    best_index = None
-    best_diff = np.inf
     for index in range(max_index+1, len(CMA)):
-        diff = abs(CMA[index] - target)
-        if diff < best_diff:
-            best_diff = diff
-            best_index = index
+        if CMA[index] <= target:
+            return x_mid[index]
 
-    return None if best_index is None else x_mid[best_index]
+    return None 
 
 
 def detect_runs_of_ISIs_below(trains, maxISI_ms, minSpikes):
@@ -232,3 +236,4 @@ def windows_to_bursts(trains, windows, max_spikes_in_burst = 10):
         burst = trains[s : e+1]
         bursts.append(burst[:max_spikes_in_burst])
     return bursts
+

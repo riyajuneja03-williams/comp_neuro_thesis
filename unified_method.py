@@ -34,6 +34,11 @@ def unified_burst_detection(spikes, T):
     cma_bursts = cma.cma_burst_detection(spikes)
     logisi_bursts = logisi.log_isi(spikes)
 
+    ps_bursts = [np.array(b) for b in ps_bursts]
+    mi_bursts = [np.array(b) for b in mi_bursts]
+    logisi_bursts = [np.array(b) for b in logisi_bursts]
+    cma_bursts = [(np.array(b)) for b in cma_bursts]
+
     # sort all bursts
     all_bursts = ps_bursts + mi_bursts + cma_bursts + logisi_bursts
     all_bursts = [burst.tolist() if isinstance(burst, np.ndarray) else burst for burst in all_bursts]
@@ -54,14 +59,13 @@ def unified_burst_detection(spikes, T):
         candidate_spikes.extend(burst)
 
         # identify candidates to compare
-        for other_burst in all_bursts: 
+        for other_burst in all_bursts:
             if other_burst is burst:
                 continue
-            if other_burst[0] <= candidates_end and other_burst not in candidate_list:
+            if other_burst[0] <= candidates_end:
                 candidate_list.append(other_burst)
                 candidate_spikes.extend(other_burst)
-            
-                if other_burst[-1] > candidates_end: # keep finding candidates until hit a "break"
+                if (other_burst[-1] > candidates_end):  # keep finding candidates until hit a "break"
                     candidates_end = other_burst[-1]
 
         # compare and save burst

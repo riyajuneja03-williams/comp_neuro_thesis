@@ -12,7 +12,6 @@ df = pd.read_csv(frame_path)
 
 (D, T, N, params) = synspiketrain.return_params()
 
-'''
 # master raster plots
 for i, param in enumerate(params):
     all_trains = []
@@ -60,6 +59,7 @@ for var in vars:
         )
 
 fig_create.compare_methods(40, 40)
-'''
+
+fig_create.compare_methods(125, 0)
 
 fig_create.roc_curves()

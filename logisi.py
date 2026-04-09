@@ -36,7 +36,7 @@ def log_isi(trains, minSpikes=5, maxSpikes=10):
     # if ISIth > 100, extend bursts to include spikes at boundaries
     if ISIth > 100:
         maxISI1 = 100
-        maxISI2 = min(ISIth) 
+        maxISI2 = ISIth
         extendFlag = True 
     else:
         maxISI1 = ISIth

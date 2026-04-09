@@ -6,6 +6,8 @@ import seaborn as sns
 import synspiketrain
 import stats
 
+np.random.seed(5)
+
 (D, T, N, params) = synspiketrain.return_params()
 
 # make directory for each parameter
@@ -64,7 +66,7 @@ for i, param in enumerate(params):
         data_name = 'metadata.txt'
         data_path = os.path.join(path, data_name)
 
-        all_metadata = parameters | spikestats | burststats | spikes_dict
+        all_metadata = parameters | spikestats | burststats
 
         metadata_array = np.array(list(all_metadata.items()), dtype=object)
         np.savetxt(data_path, metadata_array, fmt = "%s", delimiter = ":")
