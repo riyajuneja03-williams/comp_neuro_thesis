@@ -8,7 +8,7 @@ This repo contains all the code for my computationsl neuroscience thesis in Pyth
 Steps to run:
 1. Create thesis directory.
 2. Activate virtual environment (see below)
-3. Run scripts: $ python *script_name.py*
+3. Run scripts: $ python *script_name.py*. Alternatively, simply run run_all.py.
 
     a. synthetic_saver.py: iterate through parameters to create directories & files
 
