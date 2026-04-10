@@ -55,7 +55,7 @@ def cma_burst_detection(trains, min_spikes_in_burst=3, max_spikes_in_burst=10):
     CMA_max = CMA[max_index]
 
     # calculate skewness
-    skewness = skew(ISI_ms)
+    skewness = skew(CMA)
 
     # calculate alpha1
     if skewness < 1: alpha1 = 1.0
@@ -167,12 +167,14 @@ def find_xt(CMA, x_mid, max_index, target):
 
     """  
     # threshold is found at mid time point of ISI bin for which value of CMA is closest to alpha * CMAm
-    for index in range(max_index+1, len(CMA)):
-        if CMA[index] <= target:
-            return x_mid[index]
-
-    return None 
-
+    best_index = None
+    best_diff = np.inf
+    for index in range(max_index, len(CMA)):  
+        diff = abs(CMA[index] - target)
+        if diff < best_diff:
+            best_diff = diff
+            best_index = index
+    return None if best_index is None else x_mid[best_index]
 
 def detect_runs_of_ISIs_below(trains, maxISI_ms, minSpikes):
 

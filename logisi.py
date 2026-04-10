@@ -137,6 +137,7 @@ def compute_ISIth(trains):
     # calculate logISI
     ISI_ms = np.diff(trains) * 1000
     ISI_ms = ISI_ms[np.isfinite(ISI_ms) & (ISI_ms > 0)]
+    ISI_ms = ISI_ms[ISI_ms >= 1]
     if ISI_ms.size < 2:
         return None
     logISI = np.log10(ISI_ms)
@@ -153,7 +154,7 @@ def compute_ISIth(trains):
     g = g[mask]
     if x.size < 3:
         return None
-    g_smooth = lowess(g, x, return_sorted = False)
+    g_smooth = lowess(g, x, frac = 0.05, return_sorted = False)
 
     # identify principle peaks (min distance = 2 bins)
     peak_idxs, _ = find_peaks(g_smooth, distance=2)
