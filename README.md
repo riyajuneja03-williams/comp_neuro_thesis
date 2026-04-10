@@ -38,6 +38,8 @@ Steps to run:
    
     n. all_figs.py: create & save all figures
 
+    o. pd_data: save pd data to files & dataframe
+
    
 5. All data & figures will be saved in the thesis directory
 
