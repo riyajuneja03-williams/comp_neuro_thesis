@@ -71,7 +71,7 @@ def create_heatmap(indep1, indep2, dep, fig_name, T):
     plt.savefig(fig_path)
     plt.close()
 
-def create_hist(var, fig_name, log_bool, T):
+def create_hist(var, fig_name, log_bool, T, frame_path):
     """
     Create histogram.
 
@@ -89,7 +89,6 @@ def create_hist(var, fig_name, log_bool, T):
     saves histogram
 
     """
-    frame_path = os.path.join('thesis', 'data_frame.csv')
     df = pd.read_csv(frame_path)
     df = df[df["T"] == T]
     plt.figure(figsize=(10,6))
@@ -105,7 +104,7 @@ def create_hist(var, fig_name, log_bool, T):
     plt.savefig(fig_path)
     plt.close()
 
-def create_frcv_scatterplot(var, fig_name, T):
+def create_frcv_scatterplot(var, fig_name, T, frame_path):
     """
     Create scatterplot.
 
@@ -121,7 +120,6 @@ def create_frcv_scatterplot(var, fig_name, T):
     saves scatterplot
 
     """
-    frame_path = os.path.join('thesis', 'data_frame.csv')
     df = pd.read_csv(frame_path)
 
     df = df[df["T"] == T]
@@ -298,6 +296,170 @@ def compare_methods(param_num, train_num):
     fig.tight_layout()
 
     fig_path = os.path.join(path_name, "compare_methods_raster.png")
+    fig.savefig(fig_path)
+    plt.close()
+
+def pd_compare_methods(train_num):
+    """
+    Create raster plot comparing methods.
+
+    Parameters
+    ----------
+    param_num : integer
+        parameter number of interest
+    train_num : integer
+        train number of interest
+
+    Returns
+    -------
+    saves raster plot comparing train & BD methods
+
+    """
+    train = []
+    ps_bursts = []
+    mi_bursts = []
+    logisi_bursts = []
+    cma_bursts = []
+    unified_bursts = []
+
+    train_dir = f"train_{train_num:03d}"
+    path_name = os.path.join('thesis', 'pd_data', train_dir)
+
+    # get spikes and bursts from files
+    spikes_path = os.path.join(path_name, 'spikes.txt')
+    with open(spikes_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            train.append(float(line))
+
+    ps_path = os.path.join(path_name, 'poisson_bursts.txt')
+    with open(ps_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
+            ps_bursts.append([float(burst) for burst in bursts])
+    
+    mi_path = os.path.join(path_name, 'mi_bursts.txt')
+    with open(mi_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
+            mi_bursts.append([float(burst) for burst in bursts])
+    
+    logisi_path = os.path.join(path_name, 'logisi_bursts.txt')
+    with open(logisi_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
+            logisi_bursts.append([float(burst) for burst in bursts])
+    
+    cma_path = os.path.join(path_name, 'cma_bursts.txt')
+    with open(cma_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
+            cma_bursts.append([float(burst) for burst in bursts])
+    
+    unified_path = os.path.join(path_name, 'unified_bursts.txt')
+    with open(unified_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+            bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
+            unified_bursts.append([float(burst) for burst in bursts])
+    
+    # set up parameters
+    fig, ax = plt.subplots(figsize=(7, 2), dpi=300, tight_layout=True)
+    burst_colors = ["#1f78b4", "#e7298a"]
+    train_color = "#bdbdbd"
+    marker = '|'
+    size = 100
+
+    # plot original train
+    sns.scatterplot(
+        x=train,
+        y = [0] * len(train),
+        marker = marker,
+        s = size,
+        color = train_color,
+        ax=ax,
+        linewidth=1,
+        legend = False,
+        alpha = 0.4
+    )
+
+    def plot_bursts(ax, bursts, y_row, burst_colors, marker='|', size=100):
+        """
+        Plot bursts 
+
+        Parameters
+        ----------
+        ax : ax
+            axis
+        bursts : list of lists
+            list of lists of bursts
+        y_row : integer
+            integer representing which row 
+            0 = original, 1 = PS, 2 = MI, 3 = logISI, 4 = CMA
+        burst_colors : list
+            color optons for bursts
+        marker : char    
+            to plot
+        size : integer
+            to plot
+
+        Returns
+        -------
+        plots bursts
+
+        """       
+        # for each burst
+        for i, burst in enumerate(bursts):
+            col = burst_colors[i % 2]
+
+            if len(burst) == 0: 
+                continue
+            
+            # plot burst
+            sns.scatterplot(
+                x=burst,
+                y=[y_row] * len(burst),
+                marker = marker,
+                s = size,
+                color = col,
+                ax=ax,
+                legend = False
+            )
+
+    # call plot bursts on each burst detection method
+    plot_bursts(ax, ps_bursts, y_row=1, burst_colors=burst_colors, marker=marker, size=size)
+    plot_bursts(ax, mi_bursts, y_row=2, burst_colors=burst_colors, marker=marker, size=size)
+    plot_bursts(ax, logisi_bursts, y_row=3, burst_colors=burst_colors, marker=marker, size=size)
+    plot_bursts(ax, cma_bursts, y_row=4, burst_colors=burst_colors, marker=marker, size=size)
+    plot_bursts(ax, unified_bursts, y_row=5, burst_colors=burst_colors, marker=marker, size=size)
+
+    # label figure
+    ax.set_yticks([0, 1, 2, 3, 4, 5])
+    ax.set_yticklabels(["original", "poisson surprise", "max interval", "logISI", "CMA", "unified method"])
+    ax.set_xlabel("Time")
+    ax.set_ylim(-0.25, 5.25)
+    if len(train) > 0:
+        ax.set_xlim(min(train), max(train))
+
+    fig.tight_layout()
+
+    fig_path = os.path.join(path_name, "pd_compare_methods_raster.png")
     fig.savefig(fig_path)
     plt.close()
 

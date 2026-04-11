@@ -23,7 +23,13 @@ for method in methods:
 
 # analyze results
 run_command("analyze_methods.py")
-run_command("all_figs.py")
 
 # import PD data
 run_command("pd_data.py")
+
+# apply methods to PD data
+run_command("apply_pd.py")
+run_command("save_pd.py")
+
+# create figures
+run_command("all_figs.py")
