@@ -1,6 +1,6 @@
 **DESCRIPTION**
 
-This repo contains all the code for my computationsl neuroscience thesis in Python. Broadly, we are working on developing and evaluating a pipeline in Python for burst detection in neural spike trains, starting with synthetic data and then applying the methods to rodent data (healthy and Parkinsonian).
+This repo contains all the code for my computational neuroscience thesis in Python. Broadly, we are working on developing and evaluating a pipeline in Python for burst detection in neural spike trains, starting with synthetic data and then applying the methods to rodent data (healthy and Parkinsonian).
 
 
 **HOW TO RUN**
