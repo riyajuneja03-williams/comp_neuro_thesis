@@ -334,7 +334,7 @@ def pd_compare_methods(train_num):
                 continue
             train.append(float(line))
 
-    ps_path = os.path.join(path_name, 'poisson_bursts.txt')
+    ps_path = os.path.join(path_name, 'ps_bursts.txt')
     with open(ps_path, 'r') as file:
         for line in file:
             line = line.strip()

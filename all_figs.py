@@ -65,6 +65,7 @@ for var in vars:
 fig_create.compare_methods(40, 40)
 
 fig_create.roc_curves()
+
 """
 
 # PD figures
@@ -108,4 +109,4 @@ for var in pd_vars:
         frame_path=pd_frame_path
     )
 
-fig_create.compare_methods(40, 40)
+fig_create.pd_compare_methods(100)
