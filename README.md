@@ -38,7 +38,11 @@ Steps to run:
    
     n. all_figs.py: create & save all figures
 
-    o. pd_data: save pd data to files & dataframe
+    o. pd_data.py: save PD data to files & dataframe
+
+    p. apply_pd.py: apply BD methods & unified method to PD data and save to files
+
+    q. save_pd.py: save PD data & results to dataframe
 
    
 5. All data & figures will be saved in the thesis directory
