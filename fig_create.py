@@ -134,6 +134,20 @@ def create_frcv_scatterplot(var, fig_name, T, frame_path):
     plt.savefig(fig_path)
     plt.close()
 
+def create_lin_reg_sp(fig_name, T, frame_path):
+    df = pd.read_csv(frame_path)
+    df = df[df["T"] == T]
+
+    plt.figure(figsize=(10,6))
+    sns.regplot(data = df, x = "actual_rate", y = "cv", scatter=True, ci=None)
+    
+    plt.xlabel("firing rate")
+    plt.ylabel("coefficient of variation")
+
+    fig_path = os.path.join('thesis', fig_name)
+    plt.savefig(fig_path)
+    plt.close()
+
 def compare_methods(param_num, train_num):
     """
     Create raster plot comparing methods.

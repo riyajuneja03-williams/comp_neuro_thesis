@@ -1,5 +1,5 @@
-import os
 import sys
+import os
 
 dir = os.path.dirname(os.path.abspath(__file__))
 py = sys.executable

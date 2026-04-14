@@ -46,8 +46,14 @@ def save_pd_data():
     for i, data in enumerate(init_data):
         train_dir = save_path / f"train_{i:03d}"
         train_dir.mkdir(exist_ok=True, parents=True)
-        spikes_trunc = data["spikes"][data["spikes"] < min_light_on]
-        np.savetxt(train_dir / "spikes.txt", spikes_trunc)
+
+        start = data["light_on"] - min_light_on
+        end = data["light_on"]
+
+        # start at min_light_on and work backwards
+        spikes_trunc = data["spikes"][(data["spikes"] >= start) & (data["spikes"] < end)]
+        spikes_shifted = spikes_trunc - data["light_on"]
+        np.savetxt(train_dir / "spikes.txt", spikes_shifted)
 
         # save metadata
         all_metadata = {

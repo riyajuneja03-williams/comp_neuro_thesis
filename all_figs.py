@@ -8,7 +8,6 @@ import synspiketrain
 import fig_create
 import pd_data
 
-"""
 frame_path = os.path.join('thesis', 'data_frame.csv')
 df = pd.read_csv(frame_path)
 
@@ -62,11 +61,15 @@ for var in vars:
             frame_path=frame_path
         )
 
+fig_create.create_lin_reg_sp(
+    T=T,
+    fig_name = 'frcv_linreg_scatterplot',
+    frame_path=frame_path
+)
+
 fig_create.compare_methods(40, 40)
 
 fig_create.roc_curves()
-
-"""
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -110,3 +113,9 @@ for var in pd_vars:
     )
 
 fig_create.pd_compare_methods(100)
+
+fig_create.create_lin_reg_sp(
+    T=T,
+    fig_name = 'pd_frcv_linreg_scatterplot',
+    frame_path=pd_frame_path
+)
