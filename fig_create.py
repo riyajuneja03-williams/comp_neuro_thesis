@@ -91,6 +91,11 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
     """
     df = pd.read_csv(frame_path)
     df = df[df["T"] == T]
+    data = df[var]
+    mean = data.mean()
+    std = data.std()
+    num = len(data)
+
     plt.figure(figsize=(10,6))
     if log_bool:
         sns.histplot(df, x=str(var), stat="probability", edgecolor="w", log_scale=True)
@@ -100,6 +105,8 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
         sns.histplot(df, x=str(var), stat="probability", edgecolor="w")
         plt.xlabel(str(var))
         plt.ylabel('Probability')
+    plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
+    plt.legend()
     fig_path = os.path.join('thesis', str(fig_name))
     plt.savefig(fig_path)
     plt.close()
@@ -114,6 +121,10 @@ def create_frcv_scatterplot(var, fig_name, T, frame_path):
         variable to plot
     fig_name:
         name to save figure as
+    T:
+        time
+    frame_path:
+        path of data frame
 
     Returns
     -------
@@ -135,6 +146,23 @@ def create_frcv_scatterplot(var, fig_name, T, frame_path):
     plt.close()
 
 def create_lin_reg_sp(fig_name, T, frame_path):
+    """
+    Create linear regression scatterplot.
+
+    Parameters
+    ----------
+    fig_name:
+        name to save figure as
+    T:
+        time
+    frame_path:
+        path of data frame
+
+    Returns
+    -------
+    saves scatterplot
+
+    """
     df = pd.read_csv(frame_path)
     df = df[df["T"] == T]
 
@@ -147,7 +175,6 @@ def create_lin_reg_sp(fig_name, T, frame_path):
     fig_path = os.path.join('thesis', fig_name)
     plt.savefig(fig_path)
     plt.close()
-
 
 def compare_methods(param_num, train_num):
     """

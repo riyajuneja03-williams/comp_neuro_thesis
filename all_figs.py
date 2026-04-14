@@ -8,11 +8,12 @@ import synspiketrain
 import fig_create
 import pd_data
 
-"""
 frame_path = os.path.join('thesis', 'data_frame.csv')
 df = pd.read_csv(frame_path)
 
 (D, T, N, params) = synspiketrain.return_params()
+T_vals = [10, 30]
+frame_path = os.path.join('thesis', 'data_frame.csv')
 
 # master raster plots
 for i, param in enumerate(params):
@@ -30,12 +31,10 @@ for i, param in enumerate(params):
     fig_create.raster_plot(all_trains, master_path)
 
 # create heatmaps
-T_vals = [10, 30]
 for T in T_vals:
     fig_create.create_heatmap('train_rate', 'single_burst_rate', 'actual_rate', f"fr_heatmap_T{T}.png", T=T)
     fig_create.create_heatmap('train_rate', 'single_burst_rate', 'cv', f"cv_heatmap_T{T}.png", T)
-
-frame_path = os.path.join('thesis', 'data_frame.csv')
+"""
 
 # create histograms
 for T in T_vals:
@@ -43,6 +42,7 @@ for T in T_vals:
     fig_create.create_hist('cv', f"cv_hist_T{T}.png", log_bool=False, T=T, frame_path=frame_path)
     fig_create.create_hist('actual_rate', f"log_rate_hist_T{T}.png", log_bool=True, T=T, frame_path=frame_path)
 
+"""
 # create indiv scatterplots
 vars = ['predicted_burst_rate', 'D',
     'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
@@ -71,7 +71,6 @@ fig_create.create_lin_reg_sp(
 fig_create.compare_methods(40, 40)
 
 fig_create.roc_curves()
-"""
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -114,7 +113,7 @@ for var in pd_vars:
         frame_path=pd_frame_path
     )
 
-fig_create.pd_compare_methods(100)
+fig_create.pd_compare_methods(200)
 
 fig_create.create_lin_reg_sp(
     T=pd_T,
