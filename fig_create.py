@@ -148,6 +148,7 @@ def create_lin_reg_sp(fig_name, T, frame_path):
     plt.savefig(fig_path)
     plt.close()
 
+
 def compare_methods(param_num, train_num):
     """
     Create raster plot comparing methods.
