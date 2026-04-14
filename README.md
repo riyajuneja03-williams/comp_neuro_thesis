@@ -1,6 +1,9 @@
 **DESCRIPTION**
 
-This repo contains all the code for my computational neuroscience thesis in Python. Broadly, we are working on developing and evaluating a pipeline in Python for burst detection in neural spike trains, starting with synthetic data and then applying the methods to rodent data (healthy and Parkinsonian).
+This repo contains all the code for my computational neuroscience thesis in Python. Broadly, we are working on developing and evaluating a pipeline in Python for burst detection in neural spike trains, starting with synthetic data and then applying the methods to rodent data (healthy and Parkinsonian). The real rodent data comes from the following paper:
+Aristieta, A., Parker, J. E., Cundiff, M. D., Fuchs, T., Lim, B. K., Rubin, J. E.,
+and Gittis, A. H. Stimulation of the Medial SNr Promotes Sustained Motor Recovery and
+Counteracts Parkinsonian Pathophysiology in Dopamine Depleted Mice, Dec. 2024
 
 
 **HOW TO RUN**
