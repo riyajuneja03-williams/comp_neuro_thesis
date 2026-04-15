@@ -15,6 +15,7 @@ df = pd.read_csv(frame_path)
 T_vals = [10, 30]
 frame_path = os.path.join('thesis', 'data_frame.csv')
 
+"""
 # master raster plots
 for i, param in enumerate(params):
     all_trains = []
@@ -34,7 +35,6 @@ for i, param in enumerate(params):
 for T in T_vals:
     fig_create.create_heatmap('train_rate', 'single_burst_rate', 'actual_rate', f"fr_heatmap_T{T}.png", T=T)
     fig_create.create_heatmap('train_rate', 'single_burst_rate', 'cv', f"cv_heatmap_T{T}.png", T)
-"""
 
 # create histograms
 for T in T_vals:
@@ -42,7 +42,6 @@ for T in T_vals:
     fig_create.create_hist('cv', f"cv_hist_T{T}.png", log_bool=False, T=T, frame_path=frame_path)
     fig_create.create_hist('actual_rate', f"log_rate_hist_T{T}.png", log_bool=True, T=T, frame_path=frame_path)
 
-"""
 # create indiv scatterplots
 vars = ['predicted_burst_rate', 'D',
     'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
@@ -68,9 +67,12 @@ fig_create.create_lin_reg_sp(
     frame_path=frame_path
 )
 
-fig_create.compare_methods(40, 40)
-
 fig_create.roc_curves()
+
+fig_create.compare_methods(40, 40)
+fig_create.compare_methods(80, 40)
+fig_create.compare_methods(140, 40)
+"""
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -78,6 +80,7 @@ pd_df = pd.read_csv(pd_frame_path)
 
 (pd_T, pd_N) = pd_data.return_params()
 
+"""
 # raster plot
 for i in range(0, pd_N):
     # get spike train
@@ -90,12 +93,14 @@ for i in range(0, pd_N):
     raster_path = os.path.join('thesis', 'pd_data', pd_train_dir)
     fig_create.raster_plot(pd_trains, raster_path)
 
+"""
 # create histograms
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
 fig_create.create_hist('actual_rate', f"pd_rate_hist.png", log_bool=False, T=pd_T, frame_path=pd_frame_path)
 fig_create.create_hist('cv', f"pd_cv_hist.png", log_bool=False, T=pd_T, frame_path=pd_frame_path)
 fig_create.create_hist('actual_rate', f"pd_log_rate_hist.png", log_bool=True, T=pd_T, frame_path=pd_frame_path)
 
+"""
 # create indiv scatterplots
 pd_vars = [
     'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
@@ -120,3 +125,4 @@ fig_create.create_lin_reg_sp(
     fig_name = 'pd_frcv_linreg_scatterplot',
     frame_path=pd_frame_path
 )
+"""

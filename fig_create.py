@@ -557,7 +557,7 @@ def roc_curves():
 
             for key in wanted:
                 params[key].append(metadata[key])                    
-    
+
     # graph 1: 1-specificity vs sensitivity, all values color coded by method
     plt.figure()
 
@@ -581,6 +581,10 @@ def roc_curves():
     plt.close()
 
     # graph 2: 1-specificity vs sensitivity, all values for unified approach
+    sens_mean = np.mean(sens["Unified"])
+    sens_sd = np.std(sens["Unified"], ddof=1)
+    spec_mean = np.mean(oneminusspec["Unified"])
+    spec_sd = np.std(oneminusspec["Unified"], ddof=1)
 
     plt.figure()
     plt.scatter(
@@ -589,10 +593,14 @@ def roc_curves():
         label="Unified",
         alpha = 0.5
     )
-    
+
     plt.xlabel("1-Specificity")
     plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
+    plt.title(
+        f"Unified\n"
+        f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n"
+        f"1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}"
+    )
     plt.legend()
 
     fig_path = os.path.join('thesis', "unified_analysis.png")
@@ -600,6 +608,11 @@ def roc_curves():
     plt.close()
 
     # graphs 4-6: 1-specificity vs sensitivity, all values for each method
+    # PS
+    sens_mean = np.mean(sens["PS"])
+    sens_sd = np.std(sens["PS"], ddof=1)
+    spec_mean = np.mean(oneminusspec["PS"])
+    spec_sd = np.std(oneminusspec["PS"], ddof=1)
 
     plt.figure()
     plt.scatter(
@@ -608,15 +621,25 @@ def roc_curves():
         label="PS",
         alpha = 0.5
     )
-    
+
     plt.xlabel("1-Specificity")
     plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
+    plt.title(
+        f"PS\n"
+        f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n"
+        f"1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}"
+    )
     plt.legend()
 
     fig_path = os.path.join('thesis', "ps_analysis.png")
     plt.savefig(fig_path)
     plt.close()
+
+    # MI
+    sens_mean = np.mean(sens["MI"])
+    sens_sd = np.std(sens["MI"], ddof=1)
+    spec_mean = np.mean(oneminusspec["MI"])
+    spec_sd = np.std(oneminusspec["MI"], ddof=1)
 
     plt.figure()
     plt.scatter(
@@ -625,15 +648,26 @@ def roc_curves():
         label="MI",
         alpha = 0.5
     )
-    
+
     plt.xlabel("1-Specificity")
     plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
+    plt.title(
+        f"MI\n"
+        f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n"
+        f"1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}"
+    )
     plt.legend()
 
     fig_path = os.path.join('thesis', "mi_analysis.png")
     plt.savefig(fig_path)
     plt.close()
+
+
+    # LogISI
+    sens_mean = np.mean(sens["LogISI"])
+    sens_sd = np.std(sens["LogISI"], ddof=1)
+    spec_mean = np.mean(oneminusspec["LogISI"])
+    spec_sd = np.std(oneminusspec["LogISI"], ddof=1)
 
     plt.figure()
     plt.scatter(
@@ -642,15 +676,25 @@ def roc_curves():
         label="LogISI",
         alpha = 0.5
     )
-    
+
     plt.xlabel("1-Specificity")
     plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
+    plt.title(
+        f"LogISI\n"
+        f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n"
+        f"1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}"
+    )
     plt.legend()
 
     fig_path = os.path.join('thesis', "logisi_analysis.png")
     plt.savefig(fig_path)
     plt.close()
+
+    # CMA
+    sens_mean = np.mean(sens["CMA"])
+    sens_sd = np.std(sens["CMA"], ddof=1)
+    spec_mean = np.mean(oneminusspec["CMA"])
+    spec_sd = np.std(oneminusspec["CMA"], ddof=1)
 
     plt.figure()
     plt.scatter(
@@ -659,10 +703,14 @@ def roc_curves():
         label="CMA",
         alpha = 0.5
     )
-    
+
     plt.xlabel("1-Specificity")
     plt.ylabel("Sensitivity")
-    plt.title("Analysis of Burst Detection Method Performance")
+    plt.title(
+        f"CMA\n"
+        f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n"
+        f"1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}"
+    )
     plt.legend()
 
     fig_path = os.path.join('thesis', "cma_analysis.png")
@@ -692,10 +740,10 @@ def roc_curves():
     fig, axes = plt.subplots(1, 2)
 
     sns.histplot(sens_shift, stat="probability", kde=True, ax=axes[0])
-    axes[0].set_title(f"Shift in sensitivity\nmean={np.mean(sens_shift):.3f}, median={np.median(sens_shift):.3f}")
+    axes[0].set_title(f"Shift in sensitivity\nmean={np.mean(sens_shift):.3f} ± {np.std(sens_shift):.3f}")
 
     sns.histplot(spec_shift, stat="probability", kde=True, ax=axes[1])
-    axes[1].set_title(f"Shift in 1 - specificity\nmean={np.mean(spec_shift):.3f}, median={np.median(spec_shift):.3f}")
+    axes[1].set_title(f"Shift in 1 - specificity\nmean={np.mean(spec_shift):.3f} ± {np.std(spec_shift):.3f}")
 
     plt.tight_layout()
     fig_path = os.path.join('thesis', "shift_analysis.png")
@@ -706,11 +754,10 @@ def roc_curves():
         fig, axes = plt.subplots(1, 2)
 
         sns.histplot(sens_shift_by_method[method], stat="probability", kde=True, ax=axes[0])
-        axes[0].set_title(f"{method} sensitivity shift\nmean={np.mean(sens_shift_by_method[method]):.3f}, median={np.median(sens_shift_by_method[method]):.3f}")
+        axes[0].set_title(f"{method} sensitivity shift\nmean={np.mean(sens_shift_by_method[method]):.3f} ± {np.std(sens_shift_by_method[method]):.3f}")
 
         sns.histplot(spec_shift_by_method[method], stat="probability", kde=True, ax=axes[1])
-        axes[1].set_title(f"{method} 1-spec shift\nmean={np.mean(spec_shift_by_method[method]):.3f}, median={np.median(spec_shift_by_method[method]):.3f}")
-
+        axes[1].set_title(f"{method} 1-spec shift\nmean={np.mean(spec_shift_by_method[method]):.3f} ± {np.std(spec_shift_by_method[method]):.3f}")
         plt.tight_layout()
 
         fig_path = os.path.join('thesis', f"{method}_shift_analysis.png")
@@ -725,47 +772,69 @@ def roc_curves():
         ("spec", oneminusspec, "1-Specificity"),
     ]
 
-    # discrete parameters
     for param in params_to_plot:
         X = np.array(params[param])
 
-        for stat, dict, ylabel in stats:
+        for stat, stat_dict, ylabel in stats:
             plt.figure()
 
-            for method in new_methods:
-                vals = np.array(dict[method])
-                x_vals = np.unique(X)
-                means = [vals[X == x].mean() for x in x_vals]
-                sems = [sem(vals[X == x]) for x in x_vals]
+            title_lines = []
 
-                plt.errorbar(x_vals, means, yerr=sems, fmt='o', capsize=4, label=method)
+            for method in new_methods:
+                vals = np.array(stat_dict[method])
+                x_vals = np.unique(X)
+
+                means = [vals[X == x].mean() for x in x_vals]
+
+                plt.scatter(x_vals, means, label=method)
+
+                overall_mean = vals.mean()
+                overall_sd = vals.std(ddof=1)
+                n = len(vals)
+
+                title_lines.append(
+                    f"{method}: {overall_mean:.3f} ± {overall_sd:.3f} (n={n})"
+                )
 
             plt.xlabel(param)
             plt.ylabel(ylabel)
-            plt.title("Analysis of Burst Detection Method Performance")
+            plt.title(
+                f"{ylabel} vs {param}\n" + "\n".join(title_lines),
+                fontsize=10
+            )
             plt.legend()
 
             fig_path = os.path.join('thesis', f"{param}_{stat}_analysis.png")
-            plt.savefig(fig_path)
+            plt.savefig(fig_path, bbox_inches='tight')
             plt.close()
 
     # predicted burst rate
-    for stat, dict, ylabel in stats:
+    for stat, stat_dict, ylabel in stats:
         fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
         for i, method in enumerate(new_methods):
             ax = axes.flatten()[i]
+            vals = np.array(stat_dict[method])
+
             ax.scatter(
                 params["predicted_burst_rate"],
-                dict[method],
+                vals,
                 alpha=0.25
             )
-            ax.set_title(method)
+
+            overall_mean = vals.mean()
+            overall_sd = vals.std(ddof=1)
+            n = len(vals)
+
+            ax.set_title(
+                f"{method}\n"
+                f"{overall_mean:.3f} ± {overall_sd:.3f} (n={n})"
+            )
             ax.set_xlabel("predicted burst rate")
             ax.set_ylabel(ylabel)
 
         plt.tight_layout()
 
         fig_path = os.path.join('thesis', f"predburstrate_{stat}_analysis.png")
-        plt.savefig(fig_path)
+        plt.savefig(fig_path, bbox_inches='tight')
         plt.close()
