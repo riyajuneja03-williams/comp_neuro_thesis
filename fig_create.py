@@ -7,6 +7,9 @@ import seaborn as sns
 import sys
 from scipy.stats import sem
 
+sns.set_context("talk")
+mpl.rcParams.update({'font.size': 14})
+
 def raster_plot(trains, path):
     """
     Create raster plot for 1 or more spike trains.
