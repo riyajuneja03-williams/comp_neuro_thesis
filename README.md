@@ -47,6 +47,8 @@ Steps to run:
 
     q. save_pd.py: save PD data & results to dataframe
 
+    r. tests.py: run statistical tests
+
    
 5. All data & figures will be saved in the thesis directory
 
