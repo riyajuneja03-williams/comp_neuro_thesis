@@ -19,6 +19,7 @@ for i in range(0, N):
     trains = []
     train_dir = f"train_{i:03d}"
     file_name = os.path.join('thesis', 'pd_data', train_dir, 'spikes.txt')
+    
     with open(file_name, 'r') as file:
         for line in file:
             trains.append(float(line))

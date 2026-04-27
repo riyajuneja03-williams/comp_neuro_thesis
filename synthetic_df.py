@@ -21,6 +21,8 @@ for i, param in enumerate(params):
         param_name = f'param_{i:04d}'
         train_name = f'train_{j:03d}'
         file_name = os.path.join('thesis', param_name, train_name, 'metadata.txt')
+        if not os.path.exists(file_name):
+            continue
         with open(file_name, 'r') as file:
             for line in file:
                 if ':' in line:

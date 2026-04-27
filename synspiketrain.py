@@ -4,6 +4,7 @@
 import numpy as np
 import synspiketrain
 from matplotlib import pyplot as plt
+rng = np.random.default_rng(seed=5)
 
 def poisson_burst(T, D, train_rate, burst_rate, single_burst_rate, min_spikes = 3, max_spikes = 10):
     """
@@ -49,7 +50,7 @@ def poisson_burst(T, D, train_rate, burst_rate, single_burst_rate, min_spikes = 
     burst_starts = []
     bursts = []
 
-    def poisson_helper(rate, time, rng=None):
+    def poisson_helper(rate, time, rng):
         """
         Generate poisson spike train of length time at rate rate.
     
@@ -85,8 +86,6 @@ def poisson_burst(T, D, train_rate, burst_rate, single_burst_rate, min_spikes = 
                 spikes.append(t)
         
         return spikes
-
-    rng = np.random.default_rng(seed=5)
 
     train = poisson_helper(train_rate, T, rng=rng) # generate train with poisson rate train_rate
     burst_starts = poisson_helper(burst_rate, T, rng=rng) # generate burst start times with poisson rate burst_rate

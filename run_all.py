@@ -33,3 +33,6 @@ run_command("save_pd.py")
 
 # create figures
 run_command("all_figs.py")
+
+# statistical tests
+run_command("tests.py")

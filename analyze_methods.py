@@ -2,9 +2,13 @@ import os
 import sys
 import numpy as np
 import math
+import synspiketrain
 
-for param_num in range(150):
-    for train_num in range(100):
+(D, T, N, params) = synspiketrain.return_params()
+T_vals = [10, 30]
+
+for i, param in enumerate(params):
+    for j in range(0, N):
 
         train = []
         actual_bursts = []
@@ -14,9 +18,11 @@ for param_num in range(150):
         cma_bursts = []
         unified_bursts = []
 
-        param_name = f'param_{param_num:04d}'
-        train_name = f'train_{train_num:03d}'
+        param_name = f'param_{i:04d}'
+        train_name = f'train_{j:03d}'
         path_name = os.path.join('thesis', param_name, train_name)
+        if not os.path.exists(path_name):
+            continue
 
         # get spikes and bursts from files
         actualbursts_path = os.path.join(path_name, 'bursts.txt')
@@ -79,7 +85,7 @@ for param_num in range(150):
                 if not line:
                     continue
                 bursts = [burst.strip() for burst in line.split(',') if burst.strip() != '']
-                unified_bursts.extend([float(burst) for burst in bursts])
+                unified_bursts.extend([round(float(burst), 6) for burst in bursts])
 
         analysis_dict = {}
         methods = {
@@ -89,6 +95,8 @@ for param_num in range(150):
             "CMA": cma_bursts,
             "Unified": unified_bursts
         }
+
+        actual_set = set(round(spike, 6) for spike in actual_bursts)
         
         # iterate through each method
         for method, bursts in methods.items():
@@ -98,18 +106,18 @@ for param_num in range(150):
             total_spikes_not_in_burst = len(train) - len(actual_bursts)
 
             for spike in bursts:
-                if round(spike, 6) in set(actual_bursts):
+                if round(spike, 6) in actual_set:
                     correctly_detected += 1
                 else: 
                     falsely_detected += 1
             
             # calculate sensitivity and 1-specificity
-            sensitivity = correctly_detected/total_spikes_in_burst if total_spikes_in_burst > 0 else 0
-            one_minus_specificity = min(1.0, falsely_detected/total_spikes_not_in_burst) if total_spikes_not_in_burst > 0 else 0
+            sensitivity = correctly_detected / total_spikes_in_burst if total_spikes_in_burst > 0 else np.nan
+            one_minus_specificity = min(1.0, falsely_detected / total_spikes_not_in_burst) if total_spikes_not_in_burst > 0 else np.nan
 
-            analysis_dict[f"{method}, sensitivity"] = sensitivity
-            analysis_dict[f"{method}, 1-specificity"] = one_minus_specificity
+            analysis_dict[f"{method}_sens"] = sensitivity
+            analysis_dict[f"{method}_1spec"] = one_minus_specificity
 
         analysis_path = os.path.join('thesis', param_name, train_name, 'analysis.txt')
         analysis_array = np.array(list(analysis_dict.items()), dtype=object)
-        np.savetxt(analysis_path, analysis_array, fmt = "%s", delimiter = ":")
+        np.savetxt(analysis_path, analysis_array, fmt="%s", delimiter=":")

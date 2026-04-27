@@ -19,9 +19,6 @@ for i, param in enumerate(params):
 
     # make subdirectory for each train
     for j in range(0, N):
-        subdir_name = f'train_{j:03d}'
-        path = os.path.join(dir_name, subdir_name)
-        os.makedirs(path, exist_ok=True) 
 
         burst_rate=np.random.uniform(0.2, 2.01)
 
@@ -33,6 +30,15 @@ for i, param in enumerate(params):
             burst_rate=burst_rate, # burst rates = [0.2, 2.01],
             single_burst_rate=param[3],
         )
+
+        # skip trains with no bursts
+        if bursts is None or len(bursts) == 0:
+            continue
+
+        subdir_name = f'train_{j:03d}'
+        path = os.path.join(dir_name, subdir_name)
+        
+        os.makedirs(path, exist_ok=True) 
 
         # write train to file
         spikes_name = 'spikes.txt'

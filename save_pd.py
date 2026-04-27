@@ -41,6 +41,10 @@ for i in range (0, N):
     stats_file_name = os.path.join('thesis', 'pd_data', train_dir, 'spike_stats.txt')
 
     # get burst stats
+    file_name = os.path.join('thesis', 'pd_data', train_dir)
+    if not os.path.isdir(file_name):
+        continue
+
     with open(stats_file_name, 'r') as file:
         for line in file:
             if ':' in line:

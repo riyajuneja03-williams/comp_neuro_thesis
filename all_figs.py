@@ -13,7 +13,6 @@ df = pd.read_csv(frame_path)
 
 (D, T, N, params) = synspiketrain.return_params()
 T_vals = [10, 30]
-frame_path = os.path.join('thesis', 'data_frame.csv')
 
 # master raster plots
 for i, param in enumerate(params):
@@ -23,6 +22,8 @@ for i, param in enumerate(params):
         param_name = f'param_{i:04d}'
         train_name = f'train_{j:03d}'
         file_name = os.path.join('thesis', param_name, train_name, 'spikes.txt')
+        if not os.path.exists(file_name):
+            continue
         with open(file_name, 'r') as file:
             for line in file:
                 trains.append(float(line))
@@ -68,10 +69,15 @@ fig_create.create_lin_reg_sp(
 
 fig_create.roc_curves()
 
-fig_create.compare_methods(40, 40)
-fig_create.compare_methods(80, 40)
-fig_create.compare_methods(140, 40)
+fig_create.compare_methods(40, 40, False)
+fig_create.compare_methods(80, 40, False)
+fig_create.compare_methods(140, 40, False)
 
+fig_create.compare_methods(40, 40, True)
+fig_create.compare_methods(80, 40, True)
+fig_create.compare_methods(140, 40, True)
+
+fig_create.compare_methods_sensspec([40, 80, 140], [40, 40, 40], 'compare_methods_sensspec.png')
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -86,6 +92,8 @@ for i in range(0, pd_N):
     pd_trains = []
     pd_train_dir = f"train_{i:03d}"
     pd_file_name = os.path.join('thesis', 'pd_data', pd_train_dir, 'spikes.txt')
+    if not os.path.exists(file_name):
+        continue
     with open(pd_file_name, 'r') as file:
         for line in file:
             pd_trains.append(float(line))
@@ -124,3 +132,7 @@ fig_create.create_lin_reg_sp(
     fig_name = 'pd_frcv_linreg_scatterplot',
     frame_path=pd_frame_path
 )
+
+# create burst rate scatterplots
+fig_create.burst_rate_sp(frame_path, "burst_rate_sp.png")
+fig_create.burst_rate_sp(pd_frame_path, "pd_burst_rate_sp.png")

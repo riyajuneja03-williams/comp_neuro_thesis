@@ -18,6 +18,11 @@ for i, param in enumerate(params):
         param_name = f'param_{i:04d}'
         train_name = f'train_{j:03d}'
         file_name = os.path.join('thesis', param_name, train_name, 'spikes.txt')
+       
+        path_name = os.path.join('thesis', param_name, train_name)
+        if not os.path.isdir(path_name):
+            continue
+
         with open(file_name, 'r') as file:
             for line in file:
                 trains.append(float(line))

@@ -26,6 +26,8 @@ for i, param in enumerate(params):
         file_name = os.path.join('thesis', param_name, train_name, 'mi_stats.txt')
 
         # get burst stats
+        if not os.path.exists(file_name):
+            continue
         with open(file_name, 'r') as file:
             for line in file:
                 if ':' in line:

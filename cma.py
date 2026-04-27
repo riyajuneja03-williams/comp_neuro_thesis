@@ -238,4 +238,3 @@ def windows_to_bursts(trains, windows, max_spikes_in_burst = 10):
         burst = trains[s : e+1]
         bursts.append(burst[:max_spikes_in_burst])
     return bursts
-
