@@ -924,6 +924,14 @@ def burst_rate_sp(frame_path, fig_name):
         capsize=5
     )
 
+    for i, method in enumerate(methods):
+        plt.text(
+            i, means[i],
+            f"{means[i]:.2f} ± {stds[i]:.2f}",
+            ha='center',
+            va='bottom'
+        )
+
     plt.xlabel("Method")
     plt.ylabel("Burst rate")
     plt.tight_layout()
