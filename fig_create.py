@@ -8,7 +8,7 @@ import sys
 from scipy.stats import sem
 
 sns.set_context("talk")
-mpl.rcParams.update({'font.size': 10})
+mpl.rcParams.update({'font.size': 8})
 
 def raster_plot(trains, path):
     """
