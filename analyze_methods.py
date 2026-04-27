@@ -104,7 +104,7 @@ for i, param in enumerate(params):
             total_spikes_in_burst = len(actual_bursts)
             falsely_detected = 0
             total_spikes_not_in_burst = len(train) - len(actual_bursts)
-
+            
             for spike in bursts:
                 if round(spike, 6) in actual_set:
                     correctly_detected += 1

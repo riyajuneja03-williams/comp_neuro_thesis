@@ -14,6 +14,7 @@ df = pd.read_csv(frame_path)
 (D, T, N, params) = synspiketrain.return_params()
 T_vals = [10, 30]
 
+'''
 # master raster plots
 for i, param in enumerate(params):
     all_trains = []
@@ -78,6 +79,8 @@ fig_create.compare_methods(80, 40, True)
 fig_create.compare_methods(140, 40, True)
 
 fig_create.compare_methods_sensspec([40, 80, 140], [40, 40, 40], 'compare_methods_sensspec.png')
+fig_create.burst_rate_sp(frame_path, "burst_rate_sp.png")
+'''
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -85,6 +88,11 @@ pd_df = pd.read_csv(pd_frame_path)
 
 (pd_T, pd_N) = pd_data.return_params()
 
+pd_paths = [
+    ('pd', 'thesis/pd_data_frame.csv'),
+    ('pd_healthy', 'thesis/pd_data_frame_healthy.csv'),
+    ('pd_dd', 'thesis/pd_data_frame_dd.csv')
+]
 
 # raster plot
 for i in range(0, pd_N):
@@ -92,47 +100,41 @@ for i in range(0, pd_N):
     pd_trains = []
     pd_train_dir = f"train_{i:03d}"
     pd_file_name = os.path.join('thesis', 'pd_data', pd_train_dir, 'spikes.txt')
-    if not os.path.exists(file_name):
-        continue
     with open(pd_file_name, 'r') as file:
         for line in file:
             pd_trains.append(float(line))
     raster_path = os.path.join('thesis', 'pd_data', pd_train_dir)
     fig_create.raster_plot(pd_trains, raster_path)
 
+for label, pd_frame_path in pd_paths:
 
-# create histograms
-pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
-fig_create.create_hist('actual_rate', f"pd_rate_hist.png", log_bool=False, T=pd_T, frame_path=pd_frame_path)
-fig_create.create_hist('cv', f"pd_cv_hist.png", log_bool=False, T=pd_T, frame_path=pd_frame_path)
-fig_create.create_hist('actual_rate', f"pd_log_rate_hist.png", log_bool=True, T=pd_T, frame_path=pd_frame_path)
+    # create histograms
+    fig_create.create_hist('actual_rate', f"{label}_rate_hist.png", False, pd_T, pd_frame_path)
+    fig_create.create_hist('cv', f"{label}_cv_hist.png", False, pd_T, pd_frame_path)
+    fig_create.create_hist('actual_rate', f"{label}_log_rate_hist.png", True, pd_T, pd_frame_path)
 
+    # create indiv scatterplots
+    pd_vars = [
+        'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
+        'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc',
+        'logisi_num_spikes', 'logisi_burst_firing_rate', 'logisi_avg_ISI_within_bursts', 'logisi_burst_rate', 'logisi_%_spikes_in_burst', 'logisi_%_time_spent_bursting', 'logisi_firing_rate_non_bursting', 'logisi_burst_firing_rate_inc',
+        'cma_num_spikes', 'cma_burst_firing_rate', 'cma_avg_ISI_within_bursts', 'cma_burst_rate', 'cma_%_spikes_in_burst', 'cma_%_time_spent_bursting', 'cma_firing_rate_non_bursting', 'cma_burst_firing_rate_inc',
+    ]
 
-# create indiv scatterplots
-pd_vars = [
-    'ps_num_spikes', 'ps_burst_firing_rate', 'ps_avg_ISI_within_bursts', 'ps_burst_rate', 'ps_%_spikes_in_burst', 'ps_%_time_spent_bursting', 'ps_firing_rate_non_bursting', 'ps_burst_firing_rate_inc',
-    'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc',
-    'logisi_num_spikes', 'logisi_burst_firing_rate', 'logisi_avg_ISI_within_bursts', 'logisi_burst_rate', 'logisi_%_spikes_in_burst', 'logisi_%_time_spent_bursting', 'logisi_firing_rate_non_bursting', 'logisi_burst_firing_rate_inc',
-    'cma_num_spikes', 'cma_burst_firing_rate', 'cma_avg_ISI_within_bursts', 'cma_burst_rate', 'cma_%_spikes_in_burst', 'cma_%_time_spent_bursting', 'cma_firing_rate_non_bursting', 'cma_burst_firing_rate_inc',
-]
+    for var in pd_vars:
+        fig_create.create_frcv_scatterplot(
+            var=var,
+            T=pd_T,
+            fig_name=f"{label}_{var}_scatterplot.png",
+            frame_path=pd_frame_path
+        )
 
-for var in pd_vars:
-    fig_name = f"pd_{var}_scatterplot.png"
-    fig_create.create_frcv_scatterplot(
-    var=var,
+    fig_create.create_lin_reg_sp(
         T=pd_T,
-        fig_name=fig_name,
+        fig_name=f"{label}_frcv_linreg_scatterplot",
         frame_path=pd_frame_path
     )
 
-fig_create.pd_compare_methods(200)
+    fig_create.burst_rate_sp(pd_frame_path, f"{label}_burst_rate_sp.png")
 
-fig_create.create_lin_reg_sp(
-    T=pd_T,
-    fig_name = 'pd_frcv_linreg_scatterplot',
-    frame_path=pd_frame_path
-)
-
-# create burst rate scatterplots
-fig_create.burst_rate_sp(frame_path, "burst_rate_sp.png")
-fig_create.burst_rate_sp(pd_frame_path, "pd_burst_rate_sp.png")
+    fig_create.pd_compare_methods(200)

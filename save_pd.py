@@ -106,3 +106,10 @@ for i in range (0, N):
 # save data frame to file
 frame_path = os.path.join('thesis', 'pd_data_frame.csv')
 df.to_csv(frame_path, index=False)
+
+# split into healthy and dd dataframes
+df_healthy = df[df["group"] == "Naive_D1-MSNs_cell_body_stim"]
+df_dd = df[df["group"] == "6-OHDA_D1-MSNs_cell_body_stim"]
+
+df_healthy.to_csv(os.path.join('thesis', 'pd_data_frame_healthy.csv'), index=False)
+df_dd.to_csv(os.path.join('thesis', 'pd_data_frame_dd.csv'), index=False)

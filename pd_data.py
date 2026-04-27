@@ -40,7 +40,9 @@ def save_pd_data():
     # calculate recording length
     min_light_on = min(data["light_on"] for data in init_data)
 
-    rows = []
+    all_rows = []
+    healthy_rows = []
+    dd_rows = []
 
     # save spikes within recording length
     for i, data in enumerate(init_data):
@@ -65,12 +67,25 @@ def save_pd_data():
 
         metadata_array = np.array(list(all_metadata.items()), dtype=object)
         np.savetxt(train_dir / "metadata.txt", metadata_array, fmt = "%s", delimiter=":")
-        rows.append(all_metadata)
+        all_rows.append(all_metadata)
+
+        if data["group"] == "Naive_D1-MSNs_cell_body_stim":
+            healthy_rows.append(all_metadata)
+        if data["group"] == "6-OHDA_D1-MSNs_cell_body_stim":
+            dd_rows.append(all_metadata)
 
     # save dataframe
-    df_pd = pd.DataFrame(rows)
+    df_pd = pd.DataFrame(all_rows)
     frame_path = os.path.join('thesis', 'pd_data_frame.csv')
     df_pd.to_csv(frame_path, index=False)
+
+    df_pd_healthy = pd.DataFrame(healthy_rows)
+    frame_path_healthy = os.path.join('thesis', 'pd_data_frame_healthy.csv')
+    df_pd_healthy.to_csv(frame_path_healthy, index=False)
+
+    df_pd_dd = pd.DataFrame(dd_rows)
+    frame_path_dd = os.path.join('thesis', 'pd_data_frame_dd.csv')
+    df_pd_dd.to_csv(frame_path_dd, index=False)
 
 # return T, N
 def return_params():
