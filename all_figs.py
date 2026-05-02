@@ -69,6 +69,7 @@ fig_create.create_lin_reg_sp(
 
 fig_create.roc_curves()
 
+
 fig_create.compare_methods(40, 40, False)
 fig_create.compare_methods(80, 40, False)
 fig_create.compare_methods(140, 40, False)
@@ -79,7 +80,8 @@ fig_create.compare_methods(140, 40, True)
 
 fig_create.compare_methods_sensspec([40, 80, 140], [40, 40, 40], 'compare_methods_sensspec.png')
 
-fig_create.burst_rate_sp(frame_path, "burst_rate_sp.png")
+fig_create.metric_sp(frame_path, "burst_rate_sp.png", "burst_rate")
+fig_create.metric_sp(frame_path, "spikes_in_burst_sp.png", "%_spikes_in_burst")
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -104,7 +106,6 @@ for i in range(0, pd_N):
             pd_trains.append(float(line))
     raster_path = os.path.join('thesis', 'pd_data', pd_train_dir)
     fig_create.raster_plot(pd_trains, raster_path)
-
 
 for label, pd_frame_path in pd_paths:
 
@@ -136,5 +137,7 @@ for label, pd_frame_path in pd_paths:
     )
     fig_create.pd_compare_methods(200)
 
-    fig_create.burst_rate_sp(pd_frame_path, f"{label}_burst_rate_sp.png")
-
+pd_healthy_path = os.path.join('thesis', 'pd_data_frame_healthy.csv')
+pd_dd_path = os.path.join('thesis', 'pd_data_frame_dd.csv')
+fig_create.metric_sp(pd_healthy_path, "pd_groups_burst_rate_sp.png", "burst_rate", True, pd_dd_path)
+fig_create.metric_sp(pd_healthy_path, "pd_groups_spikes_in_burst_sp.png", "%_spikes_in_burst", True, pd_dd_path)

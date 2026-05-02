@@ -69,9 +69,9 @@ def create_heatmap(indep1, indep2, dep, fig_name, T):
 
     # plot 
     fig, ax = plt.subplots(1, 1, figsize=(14, 6), dpi=300)
-    ax = sns.heatmap(df_pivoted, ax=ax, cmap = 'viridis', cbar_kws={'label': dep})
-    plt.xlabel(str(indep1))
-    plt.ylabel(str(indep2))
+    ax = sns.heatmap(df_pivoted, ax=ax, cmap='viridis', cbar_kws={'label': dep.replace("_", " ")})
+    plt.xlabel(str(indep1).replace("_", " "))
+    plt.ylabel(str(indep2).replace("_", " "))
     fig_path = os.path.join('thesis', fig_name)
     plt.tight_layout()
     plt.savefig(fig_path, bbox_inches='tight')
@@ -105,11 +105,11 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
     plt.figure(figsize=(10,6), dpi=300)
     if log_bool:
         sns.histplot(df, x=str(var), stat="probability", edgecolor="w", log_scale=True)
-        plt.xlabel(f"log({var})")
+        plt.xlabel(f"log({var.replace('_', ' ')})")
         plt.ylabel('Probability')
     else:
         sns.histplot(df, x=str(var), stat="probability", edgecolor="w")
-        plt.xlabel(str(var))
+        plt.xlabel(str(var).replace("_", " "))
         plt.ylabel('Probability')
     plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
     plt.legend()
@@ -739,6 +739,10 @@ def roc_curves():
 
     sens_shift_by_method = {method: [] for method in new_methods}
     spec_shift_by_method = {method: [] for method in new_methods}
+    sens_improve_by_method = {method: [] for method in new_methods}
+    spec_improve_by_method = {method: [] for method in new_methods}
+    sens_change_by_method = {method: [] for method in new_methods}
+    spec_change_by_method = {method: [] for method in new_methods}
 
     for method in new_methods:
         for i in range(len(sens[method])):
@@ -750,7 +754,41 @@ def roc_curves():
 
             sens_shift_by_method[method].append(sens_val)
             spec_shift_by_method[method].append(spec_val)
-    
+
+            if sens_val > 0:
+                sens_improve_by_method[method].append(sens_val)
+            if sens_val != 0:
+                sens_change_by_method[method].append(sens_val)
+            
+            if spec_val < 0:
+                spec_improve_by_method[method].append(spec_val)
+            if spec_val != 0:
+                spec_change_by_method[method].append(spec_val)
+
+    labels = new_methods + ["Avg"]
+
+    sens_ratio = [len(sens_improve_by_method[m]) / len(sens_change_by_method[m]) for m in new_methods]
+    spec_ratio = [len(spec_improve_by_method[m]) / len(spec_change_by_method[m]) for m in new_methods]
+    sens_ratio.append(sum(len(sens_improve_by_method[m]) for m in new_methods) / sum(len(sens_change_by_method[m]) for m in new_methods))
+    spec_ratio.append(sum(len(spec_improve_by_method[m]) for m in new_methods) /sum(len(spec_change_by_method[m]) for m in new_methods))
+
+    x = np.arange(len(labels))
+
+    plt.figure()
+    plt.scatter(x, sens_ratio, label="Sensitivity")
+    plt.scatter(x, spec_ratio, label="1-Specificity")
+
+    plt.xticks(x, labels)
+    plt.ylim(0, 1)
+    plt.ylabel("n improved / n changed")
+    plt.xlabel("Unified shift")
+    plt.legend()
+
+    plt.tight_layout()
+    fig_path = os.path.join('thesis', "improved_change_analysis.png")
+    plt.savefig(fig_path, bbox_inches='tight')
+    plt.close()
+
     fig, axes = plt.subplots(1, 2)
 
     sns.histplot(sens_shift, stat="probability", kde=True, ax=axes[0])
@@ -835,7 +873,7 @@ def roc_curves():
                     f"{method}: {overall_mean:.3f} ± {overall_sd:.3f} (n={n})"
                 )
 
-            plt.xlabel(param)
+            plt.xlabel(param.replace("_", " "))
             plt.ylabel(ylabel)
             plt.ylim(0, 1)
             plt.title(f"{ylabel} vs {param}")
@@ -890,7 +928,8 @@ def roc_curves():
         plt.savefig(fig_path, bbox_inches='tight')
         plt.close()
 
-def burst_rate_sp(frame_path, fig_name):
+
+def metric_sp(frame_path, fig_name, metric, is_pd=False, frame_path2=None):
     """
     Create scatterplot.
 
@@ -900,40 +939,82 @@ def burst_rate_sp(frame_path, fig_name):
         name to save figure as
     frame_path:
         path of data frame
+    metric:
+        metric to plot
+    is_pd: 
+        is the data in 2 groups?
+    frame_path2:
+        if so, second dataframe
 
     Returns
     -------
-    saves burst rate scatterplot
+    saves scatterplot
 
     """
+
     df = pd.read_csv(frame_path)
 
     methods = ["PS", "MI", "LogISI", "CMA", "Unified"]
-    cols = ["ps_burst_rate", "mi_burst_rate", "logisi_burst_rate", "cma_burst_rate", "unified_burst_rate"]
+    cols = [
+        f"ps_{metric}",
+        f"mi_{metric}",
+        f"logisi_{metric}",
+        f"cma_{metric}",
+        f"unified_{metric}"
+    ]
 
     means = [df[col].mean() for col in cols]
     stds = [df[col].std() for col in cols]
 
     plt.figure(figsize=(8, 6), dpi=300)
 
-    plt.errorbar(
-        methods,
-        means,
-        yerr=stds,
-        fmt='o',
-        capsize=5
-    )
+    if not is_pd:
+        plt.errorbar(methods, means, yerr=stds, fmt='o', capsize=5)
 
-    for i, method in enumerate(methods):
-        plt.text(
-            i, means[i],
-            f"{means[i]:.2f} ± {stds[i]:.2f}",
-            ha='center',
-            va='bottom'
-        )
+        for i in range(len(methods)):
+            plt.text(
+                i,
+                means[i],
+                f"{means[i]:.2f} ± {stds[i]:.2f}",
+                ha='center',
+                va='bottom'
+            )
+
+    else:
+        df2 = pd.read_csv(frame_path2)
+
+        means2 = [df2[col].mean() for col in cols]
+        stds2 = [df2[col].std() for col in cols]
+
+        x = np.arange(len(methods))
+
+        plt.errorbar(x - 0.08, means, yerr=stds, fmt='o', capsize=5, label="Healthy")
+        plt.errorbar(x + 0.08, means2, yerr=stds2, fmt='o', capsize=5, label="Dopamine-depleted")
+
+        for i in range(len(methods)):
+            plt.text(
+                x[i] - 0.08,
+                means[i],
+                f"{means[i]:.2f} ± {stds[i]:.2f}",
+                ha='right',
+                va='bottom',
+                fontsize=8
+            )
+
+            plt.text(
+                x[i] + 0.08,
+                means2[i],
+                f"{means2[i]:.2f} ± {stds2[i]:.2f}",
+                ha='left',
+                va='bottom',
+                fontsize=8
+            )
+
+        plt.xticks(x, methods)
+        plt.legend()
 
     plt.xlabel("Method")
-    plt.ylabel("Burst rate")
+    plt.ylabel(metric.replace("_", " "))
     plt.tight_layout()
 
     fig_path = os.path.join("thesis", fig_name)
