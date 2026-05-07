@@ -5,7 +5,13 @@ import os
 import pandas as pd
 import seaborn as sns
 import sys
+import logisi
+import cma
+import poissonsurprise
 from scipy.stats import sem
+from scipy.stats import poisson, skew
+from scipy.signal import find_peaks
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 sns.set_context("talk")
 mpl.rcParams.update({'font.size': 8})
@@ -778,6 +784,21 @@ def roc_curves():
     plt.scatter(x, sens_ratio, label="Sensitivity")
     plt.scatter(x, spec_ratio, label="1-Specificity")
 
+    for i in range(len(labels)):
+        plt.text(
+            x[i],
+            sens_ratio[i] + 0.02,
+            f"{sens_ratio[i]:.2f}",
+            ha='center'
+        )
+
+        plt.text(
+            x[i],
+            spec_ratio[i] - 0.05,
+            f"{spec_ratio[i]:.2f}",
+            ha='center'
+        )
+
     plt.xticks(x, labels)
     plt.ylim(0, 1)
     plt.ylabel("n improved / n changed")
@@ -1019,4 +1040,251 @@ def metric_sp(frame_path, fig_name, metric, is_pd=False, frame_path2=None):
 
     fig_path = os.path.join("thesis", fig_name)
     plt.savefig(fig_path, bbox_inches="tight")
+    plt.close()
+
+def compare_methods(param_num, train_num, method):
+    """
+    Create raster plot for a single method.
+
+    Parameters
+    ----------
+    param_num : integer
+        parameter number of interest
+    train_num : integer
+        train number of interest
+    method : string
+        what method
+
+    Returns
+    -------
+    saves raster plot comparing train & BD methods
+
+    """
+    train = []
+    bursts = []
+
+    param_name = f'param_{param_num:04d}'
+    train_name = f'train_{train_num:03d}'
+
+    bursts_name = f'{method}_bursts.txt'
+
+    path_name = os.path.join('thesis', param_name, train_name)
+
+    if not os.path.isdir(path_name):
+        return
+
+    spikes_path = os.path.join(path_name, 'spikes.txt')
+    with open(spikes_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                train.append(float(line))
+
+    bursts_path = os.path.join(path_name, bursts_name)
+    with open(bursts_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                burst = [x.strip() for x in line.split(',') if x.strip()]
+                bursts.append([float(x) for x in burst])
+
+    fig, ax = plt.subplots(figsize=(7, 1.2), dpi=300)
+
+    burst_colors = ["#1f78b4", "#e7298a"]
+    train_color = "#bdbdbd"
+    marker = '|'
+    size = 100
+
+    sns.scatterplot(
+        x=train,
+        y=[0] * len(train),
+        marker=marker,
+        s=size,
+        color=train_color,
+        ax=ax,
+        linewidth=1,
+        legend=False,
+        alpha=0.4
+    )
+
+    for i, burst in enumerate(bursts):
+        sns.scatterplot(
+            x=burst,
+            y=[0] * len(burst),
+            marker=marker,
+            s=size,
+            color=burst_colors[i % 2],
+            ax=ax,
+            legend=False
+        )
+
+    ax.set_yticks([])
+    ax.set_xlabel("Time")
+    ax.set_ylim(-0.25, 0.25)
+    ax.set_xlim(min(train), max(train))
+
+    fig.tight_layout()
+    fig_path = os.path.join(path_name, f"{method}_raster.png")
+    fig.savefig(fig_path, bbox_inches='tight')
+    plt.close()
+
+def logisi_fig(param_num, train_num):
+    param_name = f'param_{param_num:04d}'
+    train_name = f'train_{train_num:03d}'
+    path_name = os.path.join('thesis', param_name, train_name)
+
+    trains = np.loadtxt(os.path.join(path_name, 'spikes.txt'))
+
+    ISI_ms = np.diff(trains) * 1000
+    ISI_ms = ISI_ms[np.isfinite(ISI_ms) & (ISI_ms > 0)]
+    ISI_ms = ISI_ms[ISI_ms >= 1]
+    logISI = np.log10(ISI_ms)
+    bins = np.arange(min(logISI), max(logISI) + 0.1, 0.1)
+    counts, edges = np.histogram(logISI, bins=bins)
+    g = counts / sum(counts)
+    x = (edges[:-1] + edges[1:]) / 2
+    g_smooth = lowess(g, x, frac = 0.05, return_sorted = False)
+    peak_idxs, _ = find_peaks(g_smooth, distance=2)
+    ISIth = logisi.compute_ISIth(trains)  
+
+    plt.figure(figsize=(6, 4), dpi=300)
+    plt.bar(x, g, width=0.1, alpha=0.4, label="logISI histogram")
+    plt.plot(x, g_smooth, color="black", label="smoothed histogram")
+
+    for peak in peak_idxs:
+        plt.scatter(x[peak], g_smooth[peak], color="red", zorder=3)
+
+    if ISIth is not None:
+        plt.axvline(np.log10(ISIth), linestyle="--", color="black", label=f"ISIth = {ISIth:.1f} ms")
+
+    plt.xlabel(r"$\log_{10}(\mathrm{ISI})$")
+    plt.ylabel("Probability")
+    plt.title("LogISI Example")
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(path_name, "logisi_hist.png"), bbox_inches="tight")
+    plt.close()
+
+def cma_fig(param_num, train_num):
+    param_name = f'param_{param_num:04d}'
+    train_name = f'train_{train_num:03d}'
+    path_name = os.path.join('thesis', param_name, train_name)
+
+    trains = np.loadtxt(os.path.join(path_name, 'spikes.txt'))
+    ISI_ms = np.diff(trains) * 1000
+    ISI_ms = ISI_ms[np.isfinite(ISI_ms) & (ISI_ms > 0)]
+    isi_range = ISI_ms.max() - ISI_ms.min()
+    eps = max(isi_range / 1000, 0.01)
+    bins = np.arange(0, ISI_ms.max() + eps, eps)
+    y, edges = np.histogram(ISI_ms, bins=bins)
+    x_mid = (edges[:-1] + edges[1:]) / 2
+    CH = np.cumsum(y)
+    CMA = CH / np.arange(1, len(y) + 1)
+    min_peak_ms = 2.0
+    valid_indices = np.where(x_mid > min_peak_ms)[0]
+    max_index = valid_indices[np.argmax(CMA[valid_indices])]
+    CMA_max = CMA[max_index]
+    skewness = skew(CMA)
+    if skewness < 1: alpha1 = 1.0
+    elif skewness < 4: alpha1 = 0.7
+    elif skewness < 9: alpha1 = 0.5
+    else: alpha1 = 0.3
+    if skewness < 4: alpha2 = 0.5
+    elif skewness < 9: alpha2 = 0.3
+    else: alpha2 = 0.1
+    xt1 = cma.find_xt(CMA, x_mid, max_index, target=alpha1 * CMA_max)
+    xt2 = cma.find_xt(CMA, x_mid, max_index, target=alpha2 * CMA_max)
+
+    plt.figure(figsize=(6, 4), dpi=300)
+
+    plt.bar(x_mid, y, width=eps, alpha=0.4, label="ISI histogram")
+    plt.plot(x_mid, CMA, color="black", label="CMA")
+
+    plt.axhline(alpha1 * CMA_max, linestyle="--", label=rf"$\alpha_1$CMA$_m$ = {alpha1:.1f}CMA$_m$")
+    plt.axhline(alpha2 * CMA_max, linestyle=":", label=rf"$\alpha_2$CMA$_m$ = {alpha2:.1f}CMA$_m$")
+
+    if xt1 is not None:
+        plt.axvline(xt1, linestyle="--", color="black", label=f"ISI threshold 1 = {xt1:.1f} ms")
+    if xt2 is not None:
+        plt.axvline(xt2, linestyle=":", color="black", label=f"ISI threshold 2 = {xt2:.1f} ms")
+
+    plt.text(
+        0.95, 0.95,
+        f"skewness = {skewness:.2f}",
+        transform=plt.gca().transAxes,
+        ha="right",
+        va="top"
+    )
+
+    plt.xlabel("ISI (ms)")
+    plt.ylabel("Spike Count")
+    plt.title("CMA Example")
+    plt.legend(fontsize=7)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(path_name, "cma_hist.png"), bbox_inches="tight")
+    plt.close()
+
+def poisson_fig(param_num, train_num, T=10):
+    param_name = f'param_{param_num:04d}'
+    train_name = f'train_{train_num:03d}'
+    path_name = os.path.join('thesis', param_name, train_name)
+
+    train = np.loadtxt(os.path.join(path_name, 'spikes.txt'))
+    bursts = poissonsurprise.poisson_surprise(train, T=T)
+
+    fig, ax = plt.subplots(figsize=(7, 1.1), dpi=300)
+
+    sns.scatterplot(
+        x=train,
+        y=[0] * len(train),
+        marker='|',
+        s=180,
+        color="#bdbdbd",
+        ax=ax,
+        linewidth=2,
+        legend=False,
+        alpha=0.4
+    )
+
+    burst_colors = ["#1f78b4", "#e7298a"]
+
+    for i, burst_info in enumerate(bursts):
+        burst = burst_info[0]
+        surprise = burst_info[1]
+        col = burst_colors[i % 2]
+
+        sns.scatterplot(
+            x=burst,
+            y=[0] * len(burst),
+            marker='|',
+            s=180,
+            color=col,
+            ax=ax,
+            linewidth=2,
+            legend=False
+        )
+
+        y_text = 0.10 if i % 2 == 0 else -0.10
+        va = "bottom" if i % 2 == 0 else "top"
+
+        ax.text(
+            np.mean([burst[0], burst[-1]]),
+            y_text,
+            f"S = {surprise:.1f}",
+            ha="center",
+            va=va,
+            color=col,
+            fontsize=6
+        )
+
+    ax.set_yticks([])
+    ax.set_xlabel("Time", fontsize=10, labelpad=2)
+    ax.set_ylim(-0.18, 0.18)
+    ax.set_xlim(min(train), max(train))
+    ax.margins(x=0.01, y=0)
+
+    plt.tight_layout(pad=0.1)
+    plt.savefig(os.path.join(path_name, "poisson_raster.png"), bbox_inches="tight")
     plt.close()

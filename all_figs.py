@@ -69,7 +69,6 @@ fig_create.create_lin_reg_sp(
 
 fig_create.roc_curves()
 
-
 fig_create.compare_methods(40, 40, False)
 fig_create.compare_methods(80, 40, False)
 fig_create.compare_methods(140, 40, False)
@@ -141,3 +140,11 @@ pd_healthy_path = os.path.join('thesis', 'pd_data_frame_healthy.csv')
 pd_dd_path = os.path.join('thesis', 'pd_data_frame_dd.csv')
 fig_create.metric_sp(pd_healthy_path, "pd_groups_burst_rate_sp.png", "burst_rate", True, pd_dd_path)
 fig_create.metric_sp(pd_healthy_path, "pd_groups_spikes_in_burst_sp.png", "%_spikes_in_burst", True, pd_dd_path)
+
+
+fig_create.compare_methods(40, 40, "mi")
+fig_create.compare_methods(40, 40, "logisi")
+fig_create.compare_methods(40, 40, "cma")
+fig_create.logisi_fig(40, 40)
+fig_create.cma_fig(40, 40)
+fig_create.poisson_fig(40, 40)
