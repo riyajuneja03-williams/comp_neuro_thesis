@@ -141,10 +141,11 @@ pd_dd_path = os.path.join('thesis', 'pd_data_frame_dd.csv')
 fig_create.metric_sp(pd_healthy_path, "pd_groups_burst_rate_sp.png", "burst_rate", True, pd_dd_path)
 fig_create.metric_sp(pd_healthy_path, "pd_groups_spikes_in_burst_sp.png", "%_spikes_in_burst", True, pd_dd_path)
 
+fig_create.single_method(40, 40, "mi")
 
-fig_create.compare_methods(40, 40, "mi")
-fig_create.compare_methods(40, 40, "logisi")
-fig_create.compare_methods(40, 40, "cma")
-fig_create.logisi_fig(40, 40)
+fig_create.single_method(40, 40, "logisi")
+fig_create.single_method(40, 40, "cma")
 fig_create.cma_fig(40, 40)
 fig_create.poisson_fig(40, 40)
+
+fig_create.logisi_fig(40, 40)

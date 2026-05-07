@@ -1042,7 +1042,7 @@ def metric_sp(frame_path, fig_name, metric, is_pd=False, frame_path2=None):
     plt.savefig(fig_path, bbox_inches="tight")
     plt.close()
 
-def compare_methods(param_num, train_num, method):
+def single_method(param_num, train_num, method):
     """
     Create raster plot for a single method.
 
@@ -1156,6 +1156,9 @@ def logisi_fig(param_num, train_num):
 
     if ISIth is not None:
         plt.axvline(np.log10(ISIth), linestyle="--", color="black", label=f"ISIth = {ISIth:.1f} ms")
+    else:
+        ISIth = 100
+        plt.axvline(np.log10(ISIth), linestyle="--", color="black", label="CH fallback threshold = 100 ms")
 
     plt.xlabel(r"$\log_{10}(\mathrm{ISI})$")
     plt.ylabel("Probability")
