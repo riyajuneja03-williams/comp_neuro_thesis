@@ -1151,9 +1151,6 @@ def logisi_fig(param_num, train_num):
     plt.bar(x, g, width=0.1, alpha=0.4, label="logISI histogram")
     plt.plot(x, g_smooth, color="black", label="smoothed histogram")
 
-    for peak in peak_idxs:
-        plt.scatter(x[peak], g_smooth[peak], color="red", zorder=3)
-
     if ISIth is not None:
         plt.axvline(np.log10(ISIth), linestyle="--", color="black", label=f"ISIth = {ISIth:.1f} ms")
     else:
@@ -1163,7 +1160,7 @@ def logisi_fig(param_num, train_num):
     plt.xlabel(r"$\log_{10}(\mathrm{ISI})$")
     plt.ylabel("Probability")
     plt.title("LogISI Example")
-    plt.legend()
+    plt.legend(fontsize=8)
 
     plt.tight_layout()
     plt.savefig(os.path.join(path_name, "logisi_hist.png"), bbox_inches="tight")
@@ -1279,7 +1276,7 @@ def poisson_fig(param_num, train_num, T=10):
             ha="center",
             va=va,
             color=col,
-            fontsize=6
+            fontsize=8
         )
 
     ax.set_yticks([])
@@ -1287,7 +1284,71 @@ def poisson_fig(param_num, train_num, T=10):
     ax.set_ylim(-0.18, 0.18)
     ax.set_xlim(min(train), max(train))
     ax.margins(x=0.01, y=0)
-
+    ax.tick_params(axis='x', labelsize=10)
     plt.tight_layout(pad=0.1)
     plt.savefig(os.path.join(path_name, "poisson_raster.png"), bbox_inches="tight")
+    plt.close()
+
+def mini_raster(param_num, train_num):
+    """
+    Create raster plot for a single method.
+
+    Parameters
+    ----------
+    param_num : integer
+        parameter number of interest
+    train_num : integer
+        train number of interest
+    method : string
+        what method
+
+    Returns
+    -------
+    saves raster plot comparing train & BD methods
+
+    """
+    train = []
+    bursts = []
+
+    param_name = f'param_{param_num:04d}'
+    train_name = f'train_{train_num:03d}'
+
+    path_name = os.path.join('thesis', param_name, train_name)
+
+    if not os.path.isdir(path_name):
+        return
+
+    spikes_path = os.path.join(path_name, 'spikes.txt')
+    with open(spikes_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                train.append(float(line))
+
+    fig, ax = plt.subplots(figsize=(7, 1.2), dpi=300)
+
+    train_color = "#000000"
+    marker = '|'
+    size = 100
+
+    sns.scatterplot(
+        x=train,
+        y=[0] * len(train),
+        marker=marker,
+        s=size,
+        color=train_color,
+        ax=ax,
+        linewidth=1,
+        legend=False,
+        alpha=0.4
+    )
+
+    ax.set_yticks([])
+    ax.set_xlabel("Time")
+    ax.set_ylim(-0.25, 0.25)
+    ax.set_xlim(0, 2)
+    ax.tick_params(axis='x', labelsize=8)
+    fig.tight_layout()
+    fig_path = os.path.join(path_name, f"mini_raster.png")
+    fig.savefig(fig_path, bbox_inches='tight')
     plt.close()
