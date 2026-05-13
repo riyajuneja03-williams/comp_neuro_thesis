@@ -52,9 +52,9 @@ def save_pd_data():
         start = data["light_on"] - min_light_on
         end = data["light_on"]
 
-        # start at min_light_on and work backwards
+        # save the min_light_on seconds before stimulation, shifted to start at 0
         spikes_trunc = data["spikes"][(data["spikes"] >= start) & (data["spikes"] < end)]
-        spikes_shifted = spikes_trunc - data["light_on"]
+        spikes_shifted = spikes_trunc - start
         np.savetxt(train_dir / "spikes.txt", spikes_shifted)
 
         # save metadata

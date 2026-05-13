@@ -69,7 +69,6 @@ fig_create.create_lin_reg_sp(
 )
 
 fig_create.roc_curves()
-
 fig_create.compare_methods(40, 40, False)
 fig_create.compare_methods(80, 40, False)
 fig_create.compare_methods(140, 40, False)
@@ -79,9 +78,9 @@ fig_create.compare_methods(80, 40, True)
 fig_create.compare_methods(140, 40, True)
 
 fig_create.compare_methods_sensspec([40, 80, 140], [40, 40, 40], 'compare_methods_sensspec.png')
-
 fig_create.metric_sp(frame_path, "burst_rate_sp.png", "burst_rate")
 fig_create.metric_sp(frame_path, "spikes_in_burst_sp.png", "%_spikes_in_burst")
+'''
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -95,6 +94,7 @@ pd_paths = [
     ('pd_dd', 'thesis/pd_data_frame_dd.csv')
 ]
 
+'''
 # raster plot
 for i in range(0, pd_N):
     # get spike train
@@ -106,13 +106,9 @@ for i in range(0, pd_N):
             pd_trains.append(float(line))
     raster_path = os.path.join('thesis', 'pd_data', pd_train_dir)
     fig_create.raster_plot(pd_trains, raster_path)
+'''
 
 for label, pd_frame_path in pd_paths:
-
-    # create histograms
-    fig_create.create_hist('actual_rate', f"{label}_rate_hist.png", False, pd_T, pd_frame_path)
-    fig_create.create_hist('cv', f"{label}_cv_hist.png", False, pd_T, pd_frame_path)
-    fig_create.create_hist('actual_rate', f"{label}_log_rate_hist.png", True, pd_T, pd_frame_path)
 
     # create indiv scatterplots
     pd_vars = [
@@ -120,6 +116,7 @@ for label, pd_frame_path in pd_paths:
         'mi_num_spikes', 'mi_burst_firing_rate', 'mi_avg_ISI_within_bursts', 'mi_burst_rate', 'mi_%_spikes_in_burst', 'mi_%_time_spent_bursting', 'mi_firing_rate_non_bursting', 'mi_burst_firing_rate_inc',
         'logisi_num_spikes', 'logisi_burst_firing_rate', 'logisi_avg_ISI_within_bursts', 'logisi_burst_rate', 'logisi_%_spikes_in_burst', 'logisi_%_time_spent_bursting', 'logisi_firing_rate_non_bursting', 'logisi_burst_firing_rate_inc',
         'cma_num_spikes', 'cma_burst_firing_rate', 'cma_avg_ISI_within_bursts', 'cma_burst_rate', 'cma_%_spikes_in_burst', 'cma_%_time_spent_bursting', 'cma_firing_rate_non_bursting', 'cma_burst_firing_rate_inc',
+        'unified_num_spikes', 'unified_burst_firing_rate', 'unified_avg_ISI_within_bursts', 'unified_burst_rate', 'unified_%_spikes_in_burst', 'unified_%_time_spent_bursting', 'unified_firing_rate_non_bursting', 'unified_burst_firing_rate_inc',
     ]
 
     for var in pd_vars:
@@ -129,25 +126,31 @@ for label, pd_frame_path in pd_paths:
             fig_name=f"{label}_{var}_scatterplot.png",
             frame_path=pd_frame_path
         )
-
+'''
     fig_create.create_lin_reg_sp(
         T=pd_T,
         fig_name=f"{label}_frcv_linreg_scatterplot",
         frame_path=pd_frame_path
     )
+
     fig_create.pd_compare_methods(200)
+
 
 pd_healthy_path = os.path.join('thesis', 'pd_data_frame_healthy.csv')
 pd_dd_path = os.path.join('thesis', 'pd_data_frame_dd.csv')
 fig_create.metric_sp(pd_healthy_path, "pd_groups_burst_rate_sp.png", "burst_rate", True, pd_dd_path)
 fig_create.metric_sp(pd_healthy_path, "pd_groups_spikes_in_burst_sp.png", "%_spikes_in_burst", True, pd_dd_path)
+fig_create.create_hist('actual_rate', "pd_rate_hist.png", False, pd_T, 'thesis/pd_data_frame.csv')
+fig_create.create_hist('cv', "pd_cv_hist.png", False, pd_T, 'thesis/pd_data_frame.csv')
+
+
 fig_create.mini_raster(40, 40)
 fig_create.mini_raster(80, 40)
 fig_create.mini_raster(140, 40)
-'''
-fig_create.single_method(40, 40, "mi")
 fig_create.single_method(40, 40, "logisi")
 fig_create.single_method(40, 40, "cma")
 fig_create.cma_fig(40, 40)
 fig_create.poisson_fig(40, 40)
 fig_create.logisi_fig(40, 40)
+fig_create.single_method(40, 40, "mi")
+'''

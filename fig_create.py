@@ -109,16 +109,24 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
     num = len(data)
 
     plt.figure(figsize=(10,6), dpi=300)
+    if frame_path == os.path.join('thesis', 'pd_data_frame.csv'):
+        df["health_group"] = df["group"].replace({
+            "Naive_D1-MSNs_cell_body_stim": "Healthy",
+            "Naive_mice_PV-DIO-ChR2_in_GPe": "Healthy",
+            "6-OHDA_D1-MSNs_cell_body_stim": "Diseased",
+            "6-OHDA_mice_PV-DIO-ChR2_in_GPe": "Diseased"
+        })
+
     if log_bool:
-        sns.histplot(df, x=str(var), stat="probability", edgecolor="w", log_scale=True)
+        sns.histplot(df, x=str(var), hue="health_group", stat="probability", edgecolor="w", multiple = "dodge", alpha = 0.45, log_scale=True)
         plt.xlabel(f"log({var.replace('_', ' ')})")
         plt.ylabel('Probability')
     else:
-        sns.histplot(df, x=str(var), stat="probability", edgecolor="w")
+        sns.histplot(df, x=str(var), hue="health_group", stat="probability", edgecolor="w", multiple = "dodge", alpha = 0.45)
         plt.xlabel(str(var).replace("_", " "))
         plt.ylabel('Probability')
-    plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
-    plt.legend()
+    # plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
+    # plt.legend()
     fig_path = os.path.join('thesis', str(fig_name))
     plt.tight_layout()
     plt.savefig(fig_path, bbox_inches='tight')
@@ -350,12 +358,64 @@ def compare_methods(param_num, train_num, unified):
         plot_bursts(ax, unified_bursts, y_row=5, burst_colors=burst_colors, marker=marker, size=size)
 
     # label figure
+    # label figure
     if unified:
+
         ax.set_yticks([0, 1, 2, 3, 4, 5])
-        ax.set_yticklabels(["original", "poisson surprise", "max interval", "logISI", "CMA", "unified method"])
+        ax.set_yticklabels(
+            ["original", "PS", "MI", "LogISI", "CMA", "Unified"],
+            fontsize=7
+        )
+
+        methods = {
+            1: ps_bursts,
+            2: mi_bursts,
+            3: logisi_bursts,
+            4: cma_bursts,
+            5: unified_bursts
+        }
+
+        ax.set_ylim(-0.25, 5.25)
+
     else:
+
         ax.set_yticks([0, 1, 2, 3, 4])
-        ax.set_yticklabels(["original", "poisson surprise", "max interval", "logISI", "CMA"])
+        ax.set_yticklabels(
+            ["original", "PS", "MI", "LogISI", "CMA"],
+            fontsize=7
+        )
+
+        methods = {
+            1: ps_bursts,
+            2: mi_bursts,
+            3: logisi_bursts,
+            4: cma_bursts
+        }
+
+        ax.set_ylim(-0.25, 4.25)
+
+    for y_row, bursts in methods.items():
+
+        bursts = [b for b in bursts if len(b) > 0]
+
+        num_bursts = len(bursts)
+
+        if num_bursts > 0:
+            avg_len = np.mean([len(b) for b in bursts])
+        else:
+            avg_len = 0
+
+        ax.text(
+            1.01,
+            y_row,
+            f"n={num_bursts}, avg={avg_len:.1f}",
+            transform=ax.get_yaxis_transform(),
+            va="center",
+            fontsize=6
+        )
+
+    fig.subplots_adjust(right=0.78)
+
     ax.set_xlabel("Time")
     ax.set_ylim(-0.25, 5.25)
     if len(train) > 0:
@@ -423,6 +483,8 @@ def compare_methods_sensspec(params, trains, fig_name):
     plt.xlabel("1-Specificity")
     plt.ylabel("Sensitivity")
     plt.title("Sensitivity vs. 1-Specificity")
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
     plt.legend()
 
     plt.tight_layout()
@@ -580,8 +642,45 @@ def pd_compare_methods(train_num):
     plot_bursts(ax, unified_bursts, y_row=5, burst_colors=burst_colors, marker=marker, size=size)
 
     # label figure
+    methods = {
+        "poisson surprise": ps_bursts,
+        "max interval": mi_bursts,
+        "logISI": logisi_bursts,
+        "CMA": cma_bursts,
+        "unified method": unified_bursts
+    }
+
     ax.set_yticks([0, 1, 2, 3, 4, 5])
-    ax.set_yticklabels(["original", "poisson surprise", "max interval", "logISI", "CMA", "unified method"])
+    ax.set_yticklabels(
+        ["original", "PS", "MI", "LogISI", "CMA", "Unified"],
+        fontsize=7
+    )
+
+    methods = {
+        1: ps_bursts,
+        2: mi_bursts,
+        3: logisi_bursts,
+        4: cma_bursts,
+        5: unified_bursts
+    }
+
+    for y_row, bursts in methods.items():
+        bursts = [b for b in bursts if len(b) > 0]
+        num_bursts = len(bursts)
+        if num_bursts > 0:
+            avg_len = np.mean([len(b) for b in bursts])
+        else:
+            avg_len = 0
+        ax.text(
+            1.01,
+            y_row,
+            f"n={num_bursts}, avg={avg_len:.1f}",
+            transform=ax.get_yaxis_transform(),
+            va="center",
+            fontsize=6
+        )
+    fig.subplots_adjust(right=0.78)
+    
     ax.set_xlabel("Time")
     ax.set_ylim(-0.25, 5.25)
     if len(train) > 0:
@@ -1121,8 +1220,7 @@ def single_method(param_num, train_num, method):
     ax.set_yticks([])
     ax.set_xlabel("Time")
     ax.set_ylim(-0.25, 0.25)
-    ax.set_xlim(min(train), max(train))
-
+    ax.set_xlim(1.2, 1.8)
     fig.tight_layout()
     fig_path = os.path.join(path_name, f"{method}_raster.png")
     fig.savefig(fig_path, bbox_inches='tight')
@@ -1347,7 +1445,6 @@ def mini_raster(param_num, train_num):
     ax.set_xlabel("Time")
     ax.set_ylim(-0.25, 0.25)
     ax.set_xlim(0, 2)
-    ax.tick_params(axis='x', labelsize=8)
     fig.tight_layout()
     fig_path = os.path.join(path_name, f"mini_raster.png")
     fig.savefig(fig_path, bbox_inches='tight')
