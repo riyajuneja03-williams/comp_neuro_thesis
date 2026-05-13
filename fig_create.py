@@ -76,8 +76,8 @@ def create_heatmap(indep1, indep2, dep, fig_name, T):
     # plot 
     fig, ax = plt.subplots(1, 1, figsize=(14, 6), dpi=300)
     ax = sns.heatmap(df_pivoted, ax=ax, cmap='viridis', cbar_kws={'label': dep.replace("_", " ")})
-    plt.xlabel(str(indep1).replace("_", " "))
-    plt.ylabel(str(indep2).replace("_", " "))
+    plt.xlabel(str(indep1).replace("_", " "), fontsize=25)
+    plt.ylabel(str(indep2).replace("_", " "), fontsize=25)
     fig_path = os.path.join('thesis', fig_name)
     plt.tight_layout()
     plt.savefig(fig_path, bbox_inches='tight')
@@ -463,9 +463,16 @@ def compare_methods_sensspec(params, trains, fig_name):
         "Unified": "#9467bd"
     }
 
+    param_markers = {
+        40: 'o',
+        80: 's',
+        140: '*'
+    }
+
     labeled = set()
 
     for param in params:
+        marker = param_markers[param]
         for train in trains:
             sens, spec = compare_methods(param, train, True)
 
@@ -477,6 +484,7 @@ def compare_methods_sensspec(params, trains, fig_name):
                     spec[method],
                     sens[method],
                     color=method_colors[method],
+                    marker=marker,
                     label=label
                 )
 
@@ -764,7 +772,7 @@ def roc_curves():
 
     new_methods = ["PS", "MI", "LogISI", "CMA"]
 
-    for method in methods:
+    for method in new_methods:
         sens_mean = np.nanmean(sens[method])
         sens_sd = np.nanstd(sens[method], ddof=1)
         spec_mean = np.nanmean(oneminusspec[method])
@@ -829,6 +837,20 @@ def roc_curves():
             f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}",
             transform=plt.gca().transAxes,
             va='top'
+        )
+
+        plt.axhline(
+            y=0.5,
+            color='gray',
+            linestyle='--',
+            linewidth=1
+        )
+
+        plt.axvline(
+            x=0.5,
+            color='gray',
+            linestyle='--',
+            linewidth=1
         )
 
         plt.legend()

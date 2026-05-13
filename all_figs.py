@@ -80,7 +80,7 @@ fig_create.compare_methods(140, 40, True)
 fig_create.compare_methods_sensspec([40, 80, 140], [40, 40, 40], 'compare_methods_sensspec.png')
 fig_create.metric_sp(frame_path, "burst_rate_sp.png", "burst_rate")
 fig_create.metric_sp(frame_path, "spikes_in_burst_sp.png", "%_spikes_in_burst")
-'''
+
 
 # PD figures
 pd_frame_path = os.path.join('thesis', 'pd_data_frame.csv')
@@ -94,7 +94,6 @@ pd_paths = [
     ('pd_dd', 'thesis/pd_data_frame_dd.csv')
 ]
 
-'''
 # raster plot
 for i in range(0, pd_N):
     # get spike train
@@ -106,7 +105,6 @@ for i in range(0, pd_N):
             pd_trains.append(float(line))
     raster_path = os.path.join('thesis', 'pd_data', pd_train_dir)
     fig_create.raster_plot(pd_trains, raster_path)
-'''
 
 for label, pd_frame_path in pd_paths:
 
@@ -126,7 +124,6 @@ for label, pd_frame_path in pd_paths:
             fig_name=f"{label}_{var}_scatterplot.png",
             frame_path=pd_frame_path
         )
-'''
     fig_create.create_lin_reg_sp(
         T=pd_T,
         fig_name=f"{label}_frcv_linreg_scatterplot",
