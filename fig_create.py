@@ -116,6 +116,15 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
             "6-OHDA_D1-MSNs_cell_body_stim": "Diseased",
             "6-OHDA_mice_PV-DIO-ChR2_in_GPe": "Diseased"
         })
+    
+        group_stats = df.groupby("health_group")[var].agg(['mean', 'std', 'count'])
+
+        for group in group_stats.index:
+            mean = group_stats.loc[group, 'mean']
+            std = group_stats.loc[group, 'std']
+            n = group_stats.loc[group, 'count']
+
+            print(f"{group}: mean = {mean:.2f} ± {std:.2f}, n = {n}")
 
     if log_bool:
         sns.histplot(df, x=str(var), hue="health_group", stat="probability", edgecolor="w", multiple = "dodge", alpha = 0.45, log_scale=True)
@@ -125,6 +134,7 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
         sns.histplot(df, x=str(var), hue="health_group", stat="probability", edgecolor="w", multiple = "dodge", alpha = 0.45)
         plt.xlabel(str(var).replace("_", " "))
         plt.ylabel('Probability')
+
     # plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
     # plt.legend()
     fig_path = os.path.join('thesis', str(fig_name))

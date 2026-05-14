@@ -14,7 +14,6 @@ df = pd.read_csv(frame_path)
 (D, T, N, params) = synspiketrain.return_params()
 T_vals = [10, 30]
 
-'''
 # master raster plots
 for i, param in enumerate(params):
     all_trains = []
@@ -137,9 +136,9 @@ pd_healthy_path = os.path.join('thesis', 'pd_data_frame_healthy.csv')
 pd_dd_path = os.path.join('thesis', 'pd_data_frame_dd.csv')
 fig_create.metric_sp(pd_healthy_path, "pd_groups_burst_rate_sp.png", "burst_rate", True, pd_dd_path)
 fig_create.metric_sp(pd_healthy_path, "pd_groups_spikes_in_burst_sp.png", "%_spikes_in_burst", True, pd_dd_path)
+
 fig_create.create_hist('actual_rate', "pd_rate_hist.png", False, pd_T, 'thesis/pd_data_frame.csv')
 fig_create.create_hist('cv', "pd_cv_hist.png", False, pd_T, 'thesis/pd_data_frame.csv')
-
 
 fig_create.mini_raster(40, 40)
 fig_create.mini_raster(80, 40)
@@ -150,4 +149,3 @@ fig_create.cma_fig(40, 40)
 fig_create.poisson_fig(40, 40)
 fig_create.logisi_fig(40, 40)
 fig_create.single_method(40, 40, "mi")
-'''
