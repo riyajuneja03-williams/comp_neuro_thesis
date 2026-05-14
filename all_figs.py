@@ -42,6 +42,7 @@ for T in T_vals:
     fig_create.create_hist('cv', f"cv_hist_T{T}.png", log_bool=False, T=T, frame_path=frame_path)
     fig_create.create_hist('actual_rate', f"log_rate_hist_T{T}.png", log_bool=True, T=T, frame_path=frame_path)
 
+
 # create indiv scatterplots
 vars = ['predicted_burst_rate', 'D',
     'num_spikes', 'burst_firing_rate', 'avg_ISI_within_bursts', 'burst_rate', '%_spikes_in_burst', '%_time_spent_bursting', 'firing_rate_non_bursting', 'burst_firing_rate_inc',
@@ -68,6 +69,7 @@ fig_create.create_lin_reg_sp(
 )
 
 fig_create.roc_curves()
+
 fig_create.compare_methods(40, 40, False)
 fig_create.compare_methods(80, 40, False)
 fig_create.compare_methods(140, 40, False)
@@ -77,6 +79,7 @@ fig_create.compare_methods(80, 40, True)
 fig_create.compare_methods(140, 40, True)
 
 fig_create.compare_methods_sensspec([40, 80, 140], [40, 40, 40], 'compare_methods_sensspec.png')
+
 fig_create.metric_sp(frame_path, "burst_rate_sp.png", "burst_rate")
 fig_create.metric_sp(frame_path, "spikes_in_burst_sp.png", "%_spikes_in_burst")
 
@@ -136,6 +139,7 @@ pd_healthy_path = os.path.join('thesis', 'pd_data_frame_healthy.csv')
 pd_dd_path = os.path.join('thesis', 'pd_data_frame_dd.csv')
 fig_create.metric_sp(pd_healthy_path, "pd_groups_burst_rate_sp.png", "burst_rate", True, pd_dd_path)
 fig_create.metric_sp(pd_healthy_path, "pd_groups_spikes_in_burst_sp.png", "%_spikes_in_burst", True, pd_dd_path)
+
 
 fig_create.create_hist('actual_rate', "pd_rate_hist.png", False, pd_T, 'thesis/pd_data_frame.csv')
 fig_create.create_hist('cv', "pd_cv_hist.png", False, pd_T, 'thesis/pd_data_frame.csv')

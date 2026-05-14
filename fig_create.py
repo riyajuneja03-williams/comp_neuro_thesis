@@ -124,19 +124,24 @@ def create_hist(var, fig_name, log_bool, T, frame_path):
             std = group_stats.loc[group, 'std']
             n = group_stats.loc[group, 'count']
 
-            print(f"{group}: mean = {mean:.2f} ± {std:.2f}, n = {n}")
-
-    if log_bool:
-        sns.histplot(df, x=str(var), hue="health_group", stat="probability", edgecolor="w", multiple = "dodge", alpha = 0.45, log_scale=True)
-        plt.xlabel(f"log({var.replace('_', ' ')})")
-        plt.ylabel('Probability')
-    else:
+        print(f"{group}: mean = {mean:.2f} ± {std:.2f}, n = {n}")
+        
         sns.histplot(df, x=str(var), hue="health_group", stat="probability", edgecolor="w", multiple = "dodge", alpha = 0.45)
         plt.xlabel(str(var).replace("_", " "))
         plt.ylabel('Probability')
 
-    # plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
-    # plt.legend()
+    else:
+        if log_bool:
+            sns.histplot(df, x=str(var), stat="probability", edgecolor="w", log_scale=True)
+            plt.xlabel(f"log({var.replace('_', ' ')})")
+            plt.ylabel('Probability')
+        else:
+            sns.histplot(df, x=str(var), stat="probability", edgecolor="w")
+            plt.xlabel(str(var).replace("_", " "))
+            plt.ylabel('Probability')
+
+            # plt.axvline(mean, linestyle='--', label=f"mean = {mean:.2f} ± {std:.2f}, n = {len(data)}")
+            # plt.legend()
     fig_path = os.path.join('thesis', str(fig_name))
     plt.tight_layout()
     plt.savefig(fig_path, bbox_inches='tight')
@@ -168,6 +173,9 @@ def create_frcv_scatterplot(var, fig_name, T, frame_path):
 
     plt.figure(figsize=(10,6), dpi=300)
     sns.scatterplot(data = df, x = "actual_rate", y = "cv", hue = str(var))
+    legend = plt.legend()
+    for text in legend.get_texts():
+        text.set_text(text.get_text().replace("_", " "))
 
     plt.xlabel("firing rate")
     plt.ylabel("coefficient of variation")
@@ -842,12 +850,12 @@ def roc_curves():
         plt.ylim(0, 1)
         plt.title(method)
 
-        plt.text(
-            0.05, 0.95,
-            f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}",
-            transform=plt.gca().transAxes,
-            va='top'
-        )
+        # plt.text(
+            # 0.05, 0.95,
+            # f"Sens = {sens_mean:.3f} ± {sens_sd:.3f}\n1-Spec = {spec_mean:.3f} ± {spec_sd:.3f}",
+            # transform=plt.gca().transAxes,
+            # va='top'
+        # )
 
         plt.axhline(
             y=0.5,
@@ -915,20 +923,20 @@ def roc_curves():
     plt.scatter(x, sens_ratio, label="Sensitivity")
     plt.scatter(x, spec_ratio, label="1-Specificity")
 
-    for i in range(len(labels)):
-        plt.text(
-            x[i],
-            sens_ratio[i] + 0.02,
-            f"{sens_ratio[i]:.2f}",
-            ha='center'
-        )
+    # for i in range(len(labels)):
+        # plt.text(
+            # x[i],
+            # sens_ratio[i] + 0.02,
+            # f"{sens_ratio[i]:.2f}",
+            # ha='center'
+        # )
 
-        plt.text(
-            x[i],
-            spec_ratio[i] - 0.05,
-            f"{spec_ratio[i]:.2f}",
-            ha='center'
-        )
+        # plt.text(
+            # x[i],
+            # spec_ratio[i] - 0.05,
+            # f"{spec_ratio[i]:.2f}",
+            # ha='center'
+        # )
 
     plt.xticks(x, labels)
     plt.ylim(0, 1)
@@ -945,21 +953,21 @@ def roc_curves():
 
     sns.histplot(sens_shift, stat="probability", kde=True, ax=axes[0])
     axes[0].set_title("Shift in sensitivity")
-    axes[0].text(
-        0.05, 0.95,
-        f"mean = {np.nanmean(sens_shift):.3f} ± {np.nanstd(sens_shift):.3f}",
-        transform=axes[0].transAxes,
-        va='top'
-    )
+    # axes[0].text(
+        # 0.05, 0.95,
+        # f"mean = {np.nanmean(sens_shift):.3f} ± {np.nanstd(sens_shift):.3f}",
+        # transform=axes[0].transAxes,
+        # va='top'
+    # )
 
     sns.histplot(spec_shift, stat="probability", kde=True, ax=axes[1])
     axes[1].set_title("Shift in 1 - specificity")
-    axes[1].text(
-        0.05, 0.95,
-        f"mean = {np.nanmean(spec_shift):.3f} ± {np.nanstd(spec_shift):.3f}",
-        transform=axes[1].transAxes,
-        va='top'
-    )
+    # axes[1].text(
+        # 0.05, 0.95,
+        # f"mean = {np.nanmean(spec_shift):.3f} ± {np.nanstd(spec_shift):.3f}",
+        # transform=axes[1].transAxes,
+        # va='top'
+    # )
 
     plt.tight_layout()
     fig_path = os.path.join('thesis', "shift_analysis.png")
@@ -1123,14 +1131,14 @@ def metric_sp(frame_path, fig_name, metric, is_pd=False, frame_path2=None):
     if not is_pd:
         plt.errorbar(methods, means, yerr=stds, fmt='o', capsize=5)
 
-        for i in range(len(methods)):
-            plt.text(
-                i,
-                means[i],
-                f"{means[i]:.2f} ± {stds[i]:.2f}",
-                ha='center',
-                va='bottom'
-            )
+        # for i in range(len(methods)):
+            # plt.text(
+                # i,
+                # means[i],
+                # f"{means[i]:.2f} ± {stds[i]:.2f}",
+                # ha='center',
+                # va='bottom'
+            # )
 
     else:
         df2 = pd.read_csv(frame_path2)
@@ -1143,24 +1151,24 @@ def metric_sp(frame_path, fig_name, metric, is_pd=False, frame_path2=None):
         plt.errorbar(x - 0.08, means, yerr=stds, fmt='o', capsize=5, label="Healthy")
         plt.errorbar(x + 0.08, means2, yerr=stds2, fmt='o', capsize=5, label="Dopamine-depleted")
 
-        for i in range(len(methods)):
-            plt.text(
-                x[i] - 0.08,
-                means[i],
-                f"{means[i]:.2f} ± {stds[i]:.2f}",
-                ha='right',
-                va='bottom',
-                fontsize=8
-            )
+        # for i in range(len(methods)):
+            # plt.text(
+                # x[i] - 0.08,
+                # means[i],
+                # f"{means[i]:.2f} ± {stds[i]:.2f}",
+                # ha='right',
+                # va='bottom',
+                # fontsize=8
+            # )
 
-            plt.text(
-                x[i] + 0.08,
-                means2[i],
-                f"{means2[i]:.2f} ± {stds2[i]:.2f}",
-                ha='left',
-                va='bottom',
-                fontsize=8
-            )
+            # plt.text(
+                # x[i] + 0.08,
+                # means2[i],
+                # f"{means2[i]:.2f} ± {stds2[i]:.2f}",
+                # ha='left',
+                # va='bottom',
+                # fontsize=8
+            # )
 
         plt.xticks(x, methods)
         plt.legend()
